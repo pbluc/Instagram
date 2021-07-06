@@ -1,12 +1,18 @@
 package com.codepath.pbluc.instagram;
 
 import android.app.Application;
+
+import com.codepath.pbluc.instagram.models.Post;
 import com.parse.Parse;
+import com.parse.ParseObject;
 
 public class ParseApplication extends Application {
     @Override
     public void onCreate() {
         super.onCreate();
+        // Register your parse models
+        ParseObject.registerSubclass(Post.class);
+        // Add initialization code here
         Parse.initialize(new Parse.Configuration.Builder(this)
                 .applicationId(getString(R.string.back4app_app_id))
                 .clientKey(getString(R.string.back4app_client_key))
