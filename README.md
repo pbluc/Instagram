@@ -1,6 +1,6 @@
-# Project 4 - *Instagram*
+# Project 4 - *InstagramClone*
 
-**Instagram** is a photo sharing app using Parse as its backend.
+**InstagramClone** is a photo sharing app using Parse as its backend.
 
 Time spent: **2.5** hours spent in total
 
@@ -13,7 +13,7 @@ The following **required** functionality is completed:
 - [x] User can log in to his or her account
 - [x] The current signed in user is persisted across app restarts
 - [x] User can log out of his or her account
-- [ ] User can take a photo, add a caption, and post it to "Instagram"
+- [x] User can take a photo, add a caption, and post it to "Instagram"
 - [ ] User can view the last 20 posts submitted to "Instagram"
 - [ ] User can pull to refresh the last 20 posts submitted to "Instagram"
 - [ ] User can tap a post to view post details, including timestamp and caption.
@@ -67,7 +67,7 @@ Describe any challenges encountered while building the app.
 
 ## License
 
-    Copyright [yyyy] [name of copyright owner]
+    Copyright 2021 Patricia Luc
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
