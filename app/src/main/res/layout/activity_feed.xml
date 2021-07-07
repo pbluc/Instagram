@@ -18,6 +18,7 @@
 
     <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
         android:id="@+id/swipeContainer"
+        android:layout_below="@id/btnCreatePost"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
@@ -29,5 +30,15 @@
             android:padding="8dp"/>
 
     </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
+
+    <!-- ADD ATTRIBUTE app:itemBackground="@color/colorPrimary"-->
+    <com.google.android.material.bottomnavigation.BottomNavigationView
+        android:id="@+id/bottom_navigation"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        app:menu="@menu/menu_bottom_navigation"
+        app:itemIconTint="@color/white"
+        app:itemTextColor="@color/white"/>
 
 </RelativeLayout>
