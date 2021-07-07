@@ -2,6 +2,8 @@ package com.codepath.pbluc.instagram.models;
 
 import android.util.Log;
 
+import androidx.annotation.NonNull;
+
 import com.parse.ParseClassName;
 import com.parse.ParseFile;
 import com.parse.ParseObject;
@@ -38,6 +40,12 @@ public class Post extends ParseObject {
 
     public void setUser(ParseUser user) {
         put(KEY_USER, user);
+    }
+
+    @NonNull
+    @Override
+    public String toString() {
+    return "{ User: " + getUser().getUsername() + "}";
     }
 
     public static String calculateTimeAgo(Date createdAt) {

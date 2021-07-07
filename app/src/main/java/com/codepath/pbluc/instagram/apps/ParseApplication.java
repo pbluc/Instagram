@@ -1,7 +1,8 @@
-package com.codepath.pbluc.instagram;
+package com.codepath.pbluc.instagram.apps;
 
 import android.app.Application;
 
+import com.codepath.pbluc.instagram.R;
 import com.codepath.pbluc.instagram.models.Post;
 import com.parse.Parse;
 import com.parse.ParseObject;

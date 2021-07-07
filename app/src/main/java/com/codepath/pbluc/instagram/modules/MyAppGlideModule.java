@@ -1,4 +1,4 @@
-package com.codepath.pbluc.instagram;
+package com.codepath.pbluc.instagram.modules;
 
 import com.bumptech.glide.annotation.GlideModule;
 import com.bumptech.glide.module.AppGlideModule;
