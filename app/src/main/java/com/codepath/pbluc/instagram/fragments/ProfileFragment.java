@@ -1,5 +1,6 @@
 package com.codepath.pbluc.instagram.fragments;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -17,6 +18,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.bumptech.glide.Glide;
+import com.codepath.pbluc.instagram.EditProfileActivity;
 import com.codepath.pbluc.instagram.R;
 import com.codepath.pbluc.instagram.adapters.PostsAdapter;
 import com.codepath.pbluc.instagram.adapters.ProfileAdapter;
@@ -82,7 +84,6 @@ public class ProfileFragment extends FeedFragment {
     rvPosts = view.findViewById(R.id.rvPosts);
 
     ParseUser parseUser = ParseUser.getCurrentUser();
-    Log.i(TAG, "Current user has post count: " + parseUser.getNumber("Posts"));
     tvUsername.setText(parseUser.getUsername());
     tvPostsCount.setText(parseUser.getNumber("Posts").toString());
     tvFollowersCount.setText(parseUser.getNumber("Followers").toString());
@@ -96,6 +97,13 @@ public class ProfileFragment extends FeedFragment {
     if (image != null) {
       Glide.with(getContext()).load(image.getUrl()).into(ivProfileImage);
     }
+
+    btnEditProfile.setOnClickListener(new View.OnClickListener() {
+      @Override
+      public void onClick(View v) {
+        goEditProfileActivity();
+      }
+    });
 
     swipeContainer.setOnRefreshListener(
             new SwipeRefreshLayout.OnRefreshListener() {
@@ -126,6 +134,11 @@ public class ProfileFragment extends FeedFragment {
     rvPosts.addOnScrollListener(scrollListener);
     // query posts from Parstagram
     queryPosts();
+  }
+
+  private void goEditProfileActivity() {
+    Intent intent = new Intent(getActivity(), EditProfileActivity.class);
+    startActivity(intent);
   }
 
   private void queryPosts() {

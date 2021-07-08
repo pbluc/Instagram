@@ -7,6 +7,7 @@ import androidx.fragment.app.FragmentManager;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.MenuItem;
 
 import com.codepath.pbluc.instagram.fragments.ComposeFragment;
@@ -17,6 +18,7 @@ import com.parse.ParseUser;
 
 public class MainActivity extends AppCompatActivity {
 
+  private static final String TAG = "MainActivity";
   final FragmentManager fragmentManager = getSupportFragmentManager();
   private BottomNavigationView bottomNavigationView;
 
@@ -32,6 +34,20 @@ public class MainActivity extends AppCompatActivity {
     }
 
     bottomNavigationView = findViewById(R.id.bottom_navigation);
+
+    Bundle extras = getIntent().getExtras();
+    if(extras != null && extras.containsKey("openProfileFragment")) {
+      boolean openProfileFragment = extras.getBoolean("openProfileFragment");
+      if(openProfileFragment) {
+        bottomNavigationView.setSelectedItemId(R.id.action_profile);
+        extras = null;
+        fragmentManager.beginTransaction().replace(R.id.flContainer, new ProfileFragment()).commit();
+      }
+    } else {
+      // Set default selection
+      bottomNavigationView.setSelectedItemId(R.id.action_home);
+      fragmentManager.beginTransaction().replace(R.id.flContainer, new FeedFragment()).commit();
+    }
 
     bottomNavigationView.setOnNavigationItemSelectedListener(
         new BottomNavigationView.OnNavigationItemSelectedListener() {
@@ -56,11 +72,10 @@ public class MainActivity extends AppCompatActivity {
                 fragment = new FeedFragment();
                 break;
             }
+
             fragmentManager.beginTransaction().replace(R.id.flContainer, fragment).commit();
             return true;
           }
         });
-    // Set default selection
-    bottomNavigationView.setSelectedItemId(R.id.action_home);
   }
 }
