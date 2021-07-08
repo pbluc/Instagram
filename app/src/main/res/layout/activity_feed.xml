@@ -6,30 +6,14 @@
     android:layout_height="match_parent"
     android:orientation="vertical"
     android:layout_margin="16dp"
-    tools:context=".FeedActivity">
+    tools:context=".MainActivity">
 
-    <Button
-        android:id="@+id/btnCreatePost"
+
+    <FrameLayout
+        android:id="@+id/flContainer"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_weight="1"
-        android:text="Creat New Post"/>
-
-
-    <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
-        android:id="@+id/swipeContainer"
-        android:layout_below="@id/btnCreatePost"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent">
-
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/rvPosts"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_centerInParent="true"
-            android:padding="8dp"/>
-
-    </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
+        android:layout_height="match_parent"
+        android:layout_above="@id/bottom_navigation"/>
 
     <!-- ADD ATTRIBUTE app:itemBackground="@color/colorPrimary"-->
     <com.google.android.material.bottomnavigation.BottomNavigationView

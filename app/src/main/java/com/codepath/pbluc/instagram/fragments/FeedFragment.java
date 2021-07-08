@@ -1,61 +1,60 @@
-package com.codepath.pbluc.instagram;
+package com.codepath.pbluc.instagram.fragments;
+
+import android.content.Intent;
+import android.os.Bundle;
 
 import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
+import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
-import android.content.Intent;
-import android.os.Bundle;
 import android.util.Log;
-import android.view.MenuItem;
+import android.view.LayoutInflater;
 import android.view.View;
-import android.widget.Button;
-import android.widget.Toast;
+import android.view.ViewGroup;
 
+import com.codepath.pbluc.instagram.R;
 import com.codepath.pbluc.instagram.adapters.PostsAdapter;
 import com.codepath.pbluc.instagram.listeners.EndlessRecyclerViewScrollListener;
 import com.codepath.pbluc.instagram.models.Post;
-import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.parse.FindCallback;
 import com.parse.ParseException;
 import com.parse.ParseQuery;
-import com.parse.ParseUser;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class FeedActivity extends AppCompatActivity {
+/** A simple {@link Fragment} subclass. */
+public class FeedFragment extends Fragment {
 
-  private static final String TAG = "FeedActivity";
-  private static final int QUERY_AMOUNT_LIMIT = 20;
+  private static final String TAG = "FeedFragment";
+  protected static final int QUERY_AMOUNT_LIMIT = 20;
 
-  private RecyclerView rvPosts;
+  protected RecyclerView rvPosts;
   private SwipeRefreshLayout swipeContainer;
   private EndlessRecyclerViewScrollListener scrollListener;
-  private Button btnCreatePost;
-  private BottomNavigationView bottomNavigationView;
 
   protected PostsAdapter adapter;
   protected List<Post> allPosts;
 
+  public FeedFragment() {
+      // Required empty public constructor
+  }
+
   @Override
-  protected void onCreate(Bundle savedInstanceState) {
-    super.onCreate(savedInstanceState);
-    setContentView(R.layout.activity_feed);
+  public View onCreateView(
+      LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+    // Inflate the layout for this fragment
+    return inflater.inflate(R.layout.fragment_feed, container, false);
+  }
 
-    if (ParseUser.getCurrentUser() == null) {
-      Intent i = new Intent(this, LoginActivity.class);
-      startActivity(i);
-      finish();
-    }
-
-    rvPosts = findViewById(R.id.rvPosts);
-    swipeContainer = findViewById(R.id.swipeContainer);
-    btnCreatePost = findViewById(R.id.btnCreatePost);
-    bottomNavigationView = findViewById(R.id.bottom_navigation);
+  @Override
+  public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+    super.onViewCreated(view, savedInstanceState);
+    rvPosts = view.findViewById(R.id.rvPosts);
+    swipeContainer = view.findViewById(R.id.swipeContainer);
 
     // Setup refresh listener which triggers new data loading
     swipeContainer.setOnRefreshListener(
@@ -66,45 +65,14 @@ public class FeedActivity extends AppCompatActivity {
           }
         });
 
-    btnCreatePost.setOnClickListener(
-        new View.OnClickListener() {
-          @Override
-          public void onClick(View v) {
-            goMainActivity();
-          }
-        });
-
-    bottomNavigationView.setOnNavigationItemSelectedListener(
-        new BottomNavigationView.OnNavigationItemSelectedListener() {
-          @Override
-          public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-            Fragment fragment;
-            switch (item.getItemId()) {
-              case R.id.action_home:
-                Toast.makeText(FeedActivity.this, "Home!", Toast.LENGTH_LONG).show();
-                break;
-              case R.id.action_compose:
-                Toast.makeText(FeedActivity.this, "Compose!", Toast.LENGTH_LONG).show();
-                break;
-              case R.id.action_profile:
-              default:
-                Toast.makeText(FeedActivity.this, "Profile!", Toast.LENGTH_LONG).show();
-                break;
-            }
-            return true;
-          }
-        });
-    // Set default selection
-    bottomNavigationView.setSelectedItemId(R.id.action_home);
-
     // initialize the array that will hold posts and create a PostsAdapter
     allPosts = new ArrayList<>();
-    adapter = new PostsAdapter(this, allPosts);
+    adapter = new PostsAdapter(getContext(), allPosts);
 
     // set adapter on the recycler view
     rvPosts.setAdapter(adapter);
     // set the layout manager on the recycler view
-    LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this);
+    LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getContext());
     rvPosts.setLayoutManager(linearLayoutManager);
     // Retain an instance so that we can call `resetState()` for fresh searches
     scrollListener =
@@ -122,7 +90,7 @@ public class FeedActivity extends AppCompatActivity {
     queryPosts();
   }
 
-  private void loadNextDataFromParse(int page) {
+  protected void loadNextDataFromParse(int page) {
     int allPostsSize = allPosts.size();
     // specify what type of data we want to query - Post.class
     ParseQuery<Post> query = ParseQuery.getQuery(Post.class);
@@ -152,11 +120,6 @@ public class FeedActivity extends AppCompatActivity {
             adapter.notifyItemRangeInserted(allPostsSize, posts.size());
           }
         });
-  }
-
-  private void goMainActivity() {
-    Intent i = new Intent(this, MainActivity.class);
-    startActivity(i);
   }
 
   private void fetchTimelineAsync(int i) {
@@ -189,7 +152,7 @@ public class FeedActivity extends AppCompatActivity {
         });
   }
 
-  private void queryPosts() {
+  protected void queryPosts() {
     // specify what type of data we want to query - Post.class
     ParseQuery<Post> query = ParseQuery.getQuery(Post.class);
     // include data referred by user key

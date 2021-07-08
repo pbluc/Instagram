@@ -22,7 +22,7 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.Toast;
 
-import com.codepath.pbluc.instagram.MainActivity;
+import com.codepath.pbluc.instagram.LoginActivity;
 import com.codepath.pbluc.instagram.R;
 import com.codepath.pbluc.instagram.models.Post;
 import com.parse.FindCallback;
@@ -81,7 +81,7 @@ public class ComposeFragment extends Fragment {
             public void onClick(View v) {
                 Log.i(TAG, "onClick logout button");
                 logoutUser();
-                goMainActivity();
+                goLoginActivity();
             }
         });
 
@@ -207,9 +207,9 @@ public class ComposeFragment extends Fragment {
         Log.i(TAG, "Logout successful!");
     }
 
-    private void goMainActivity() {
-        Intent i = new Intent(getContext(), MainActivity.class);
+    private void goLoginActivity() {
+        Intent i = new Intent(getContext(), LoginActivity.class);
         startActivity(i);
-        //finish();
+        // finish();
     }
 }
