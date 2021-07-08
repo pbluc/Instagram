@@ -74,27 +74,28 @@ public class FeedActivity extends AppCompatActivity {
           }
         });
 
-    bottomNavigationView.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
-        @Override
-        public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+    bottomNavigationView.setOnNavigationItemSelectedListener(
+        new BottomNavigationView.OnNavigationItemSelectedListener() {
+          @Override
+          public boolean onNavigationItemSelected(@NonNull MenuItem item) {
             Fragment fragment;
             switch (item.getItemId()) {
-                case R.id.action_home:
-                    Toast.makeText(FeedActivity.this, "Home!", Toast.LENGTH_LONG).show();
-                    break;
-                case R.id.action_compose:
-                    Toast.makeText(FeedActivity.this, "Compose!", Toast.LENGTH_LONG).show();
-                    break;
-                case R.id.action_profile:
-                default:
-                    Toast.makeText(FeedActivity.this, "Profile!", Toast.LENGTH_LONG).show();
-                    break;
+              case R.id.action_home:
+                Toast.makeText(FeedActivity.this, "Home!", Toast.LENGTH_LONG).show();
+                break;
+              case R.id.action_compose:
+                Toast.makeText(FeedActivity.this, "Compose!", Toast.LENGTH_LONG).show();
+                break;
+              case R.id.action_profile:
+              default:
+                Toast.makeText(FeedActivity.this, "Profile!", Toast.LENGTH_LONG).show();
+                break;
             }
             return true;
-        }
-    });
-      // Set default selection
-      bottomNavigationView.setSelectedItemId(R.id.action_home);
+          }
+        });
+    // Set default selection
+    bottomNavigationView.setSelectedItemId(R.id.action_home);
 
     // initialize the array that will hold posts and create a PostsAdapter
     allPosts = new ArrayList<>();
@@ -129,14 +130,17 @@ public class FeedActivity extends AppCompatActivity {
     query.include(Post.KEY_USER);
     // limit query to latest 20 items
     query.setLimit(QUERY_AMOUNT_LIMIT);
-    // query searches for posts older than posts currently populating and orders by creation date (newest first)
-    query.whereLessThan("createdAt", allPosts.get(allPosts.size() - 1).getCreatedAt()).addDescendingOrder("createdAt");
+    // query searches for posts older than posts currently populating and orders by creation date
+    // (newest first)
+    query
+        .whereLessThan("createdAt", allPosts.get(allPosts.size() - 1).getCreatedAt())
+        .addDescendingOrder("createdAt");
     // start an asynchronous call for posts
     query.findInBackground(
         new FindCallback<Post>() {
           @Override
           public void done(List<Post> posts, ParseException e) {
-              Log.i(TAG, "Loaded posts: " + posts.toString());
+            Log.i(TAG, "Loaded posts: " + posts.toString());
             // check for errors
             if (e != null) {
               Log.e(TAG, "Issue with getting more loaded posts", e);
