@@ -32,12 +32,12 @@ public class FeedFragment extends Fragment {
   private static final String TAG = "FeedFragment";
   protected static final int QUERY_AMOUNT_LIMIT = 20;
 
-  protected RecyclerView rvPosts;
+  private RecyclerView rvPosts;
   private SwipeRefreshLayout swipeContainer;
   private EndlessRecyclerViewScrollListener scrollListener;
 
-  protected PostsAdapter adapter;
-  protected List<Post> allPosts;
+  private PostsAdapter adapter;
+  private List<Post> allPosts;
 
   public FeedFragment() {
       // Required empty public constructor
@@ -90,7 +90,7 @@ public class FeedFragment extends Fragment {
     queryPosts();
   }
 
-  protected void loadNextDataFromParse(int page) {
+  private void loadNextDataFromParse(int page) {
     int allPostsSize = allPosts.size();
     // specify what type of data we want to query - Post.class
     ParseQuery<Post> query = ParseQuery.getQuery(Post.class);
@@ -152,7 +152,7 @@ public class FeedFragment extends Fragment {
         });
   }
 
-  protected void queryPosts() {
+  private void queryPosts() {
     // specify what type of data we want to query - Post.class
     ParseQuery<Post> query = ParseQuery.getQuery(Post.class);
     // include data referred by user key
