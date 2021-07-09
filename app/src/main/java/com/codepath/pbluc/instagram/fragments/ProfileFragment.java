@@ -8,6 +8,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -52,6 +53,7 @@ public class ProfileFragment extends FeedFragment {
   private SwipeRefreshLayout swipeContainer;
   private EndlessRecyclerViewScrollListener scrollListener;
   private RecyclerView rvPosts;
+  private ProgressBar pb;
 
   private List<Post> allPosts;
   private ProfileAdapter adapter;
@@ -85,17 +87,19 @@ public class ProfileFragment extends FeedFragment {
     swipeContainer = view.findViewById(R.id.swipeContainer);
     rvPosts = view.findViewById(R.id.rvPosts);
 
+    pb = view.findViewById(R.id.pbLoading);
+
     Bundle bundle = this.getArguments();
-    if(bundle != null) {
+    if (bundle != null) {
       profileUser = bundle.getParcelable("otherParseUser");
     } else {
       profileUser = ParseUser.getCurrentUser();
     }
 
     tvUsername.setText(profileUser.getUsername());
-    tvPostsCount.setText(profileUser.getNumber("Posts").toString());
-    tvFollowersCount.setText(profileUser.getNumber("Followers").toString());
-    tvFollowingCount.setText(profileUser.getNumber("Following").toString());
+    tvPostsCount.setText(profileUser.getString("posts"));
+    tvFollowersCount.setText(profileUser.getString("followers"));
+    tvFollowingCount.setText(profileUser.getString("following"));
     tvUserFullName.setText(
         profileUser.getString("firstName") + " " + profileUser.getString("lastName"));
     tvPronouns.setText(profileUser.getString("pronouns"));
@@ -107,7 +111,7 @@ public class ProfileFragment extends FeedFragment {
       Glide.with(getContext()).load(image.getUrl()).into(ivProfileImage);
     }
 
-    if(!profileUser.getObjectId().equals(ParseUser.getCurrentUser().getObjectId())) {
+    if (!profileUser.getObjectId().equals(ParseUser.getCurrentUser().getObjectId())) {
       Log.i(TAG, "Attempting to NOT show visibility");
       // Profile displayed is not that of current user
       btnEditProfile.setVisibility(View.GONE);
@@ -115,12 +119,12 @@ public class ProfileFragment extends FeedFragment {
       Log.i(TAG, "Attempting to show visibility");
       btnEditProfile.setVisibility(View.VISIBLE);
       btnEditProfile.setOnClickListener(
-              new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                  goEditProfileActivity();
-                }
-              });
+          new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+              goEditProfileActivity();
+            }
+          });
     }
 
     swipeContainer.setOnRefreshListener(
@@ -145,11 +149,14 @@ public class ProfileFragment extends FeedFragment {
           public void onLoadMore(int page, int totalItemsCount, RecyclerView view) {
             // Triggered only when new data needs to be appended to the list
             // Add whatever code is needed to append new items to bottom of the list
+            pb.setVisibility(View.VISIBLE);
             loadNextDataFromParse(page);
           }
         };
     // Adds the scroll listener to RecyclerView
     rvPosts.addOnScrollListener(scrollListener);
+
+    pb.setVisibility(View.VISIBLE);
     // query posts from Parstagram
     queryPosts();
   }
@@ -174,6 +181,9 @@ public class ProfileFragment extends FeedFragment {
               Log.e(TAG, "Issue with getting posts", e);
               return;
             }
+
+            pb.setVisibility(View.INVISIBLE);
+
             Log.i(TAG, "Posts: " + posts.toString());
             allPosts.addAll(posts);
             adapter.notifyDataSetChanged();
@@ -206,6 +216,8 @@ public class ProfileFragment extends FeedFragment {
               Log.e(TAG, "Issue with getting more loaded posts", e);
               return;
             }
+
+            pb.setVisibility(View.INVISIBLE);
 
             // save received posts to list and notify adapter of new data
             allPosts.addAll(posts);

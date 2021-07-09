@@ -12,6 +12,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -45,6 +46,8 @@ public class EditProfileActivity extends AppCompatActivity {
   private EditText etWebsite;
   private EditText etBio;
 
+  private ProgressBar pb;
+
   private ParseUser parseUser;
 
   @Override
@@ -62,6 +65,8 @@ public class EditProfileActivity extends AppCompatActivity {
     etPronouns = findViewById(R.id.etPronouns);
     etWebsite = findViewById(R.id.etWebsite);
     etBio = findViewById(R.id.etBio);
+
+    pb = findViewById(R.id.pbLoading);
 
     parseUser = ParseUser.getCurrentUser();
 
@@ -106,6 +111,7 @@ public class EditProfileActivity extends AppCompatActivity {
           public void onClick(View v) {
             Log.i(TAG, "Save changes onclick");
             try {
+              pb.setVisibility(View.VISIBLE);
               updateParseUser();
             } catch (IOException e) {
               e.printStackTrace();
@@ -136,7 +142,10 @@ public class EditProfileActivity extends AppCompatActivity {
                   String[] firstAndLastName = fullName.split(" ");
 
                   if (firstAndLastName.length != 2) {
-                    Toast.makeText(EditProfileActivity.this, "First and last name must be entered!", Toast.LENGTH_SHORT)
+                    Toast.makeText(
+                            EditProfileActivity.this,
+                            "First and last name must be entered!",
+                            Toast.LENGTH_SHORT)
                         .show();
                     return;
                   }
@@ -157,6 +166,7 @@ public class EditProfileActivity extends AppCompatActivity {
                           // Save successful
                           if (e == null) {
                             Log.i(TAG, "Save successful!");
+                            pb.setVisibility(View.INVISIBLE);
                             Toast.makeText(
                                     EditProfileActivity.this,
                                     "Save successful!",

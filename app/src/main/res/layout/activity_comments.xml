@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:layout_margin="16dp"
+    tools:context=".CommentsActivity">
+
+    <ProgressBar
+        android:id="@+id/pbLoading"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:visibility="invisible"
+        android:layout_centerInParent="true"/>
+
+    <ImageView
+        android:id="@+id/ivReturnHome"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:clickable="true"
+        android:src="@drawable/ic_return_arrow"/>
+
+    <TextView
+        android:layout_toRightOf="@id/ivReturnHome"
+        android:layout_marginLeft="25dp"
+        android:layout_marginTop="12dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="20sp"
+        android:text="Comments"/>
+
+    <ImageView
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:layout_alignParentEnd="true"
+        android:clickable="true"
+        android:src="@drawable/ufi_new_direct"/>
+
+    <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+        android:id="@+id/swipeContainer"
+        android:layout_width="match_parent"
+        android:layout_below="@id/ivReturnHome"
+        android:layout_above="@+id/linearLayoutContainer"
+        android:layout_marginTop="10dp"
+        android:layout_height="match_parent">
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/rvComments"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_centerInParent="true"
+            android:padding="8dp"/>
+
+    </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
+
+    <LinearLayout
+        android:layout_alignParentBottom="true"
+        android:id="@+id/linearLayoutContainer"
+        android:orientation="horizontal"
+        android:layout_toLeftOf="@id/tvPostComment"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <androidx.cardview.widget.CardView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/tvUsername"
+            android:layout_marginLeft="5dp"
+            android:id="@+id/cardView"
+            android:innerRadius="0dp"
+            android:shape="ring"
+            android:thicknessRatio="1.9"
+            app:cardCornerRadius="60dp">
+
+            <ImageView
+                android:id="@+id/ivProfileImage"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                tools:srcCompat="@tools:sample/avatars"/>
+
+        </androidx.cardview.widget.CardView>
+
+
+        <EditText
+            android:layout_marginLeft="10dp"
+            android:id="@+id/etAddComment"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Add a comment"/>
+
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/tvPostComment"
+        android:clickable="true"
+        android:layout_below="@id/swipeContainer"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentRight="true"
+        android:text="Post"
+        android:textSize="20sp"
+        android:layout_marginTop="10dp"/>
+
+</RelativeLayout>

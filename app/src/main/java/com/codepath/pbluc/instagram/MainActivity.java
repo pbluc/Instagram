@@ -47,7 +47,9 @@ public class MainActivity extends AppCompatActivity {
             .replace(R.id.flContainer, new ProfileFragment())
             .commit();
       }
-    } else if(extras != null && extras.containsKey("openProfileFragmentOnUser") && extras.containsKey("openProfileFragmentOnUser ParseUser")) {
+    } else if (extras != null
+        && extras.containsKey("openProfileFragmentOnUser")
+        && extras.containsKey("openProfileFragmentOnUser ParseUser")) {
       boolean openProfileFragmentOnUser = extras.getBoolean("openProfileFragmentOnUser");
       ParseUser profileUser = extras.getParcelable("openProfileFragmentOnUser ParseUser");
 
@@ -58,17 +60,14 @@ public class MainActivity extends AppCompatActivity {
         bundle.putParcelable("otherParseUser", profileUser);
         frag.setArguments(bundle);
 
-        if(!profileUser.getObjectId().equals(ParseUser.getCurrentUser().getObjectId())) {
+        if (!profileUser.getObjectId().equals(ParseUser.getCurrentUser().getObjectId())) {
           bottomNavigationView.setSelectedItemId(R.id.action_home);
         } else {
           bottomNavigationView.setSelectedItemId(R.id.action_profile);
         }
 
         extras = null;
-        fragmentManager
-                .beginTransaction()
-                .replace(R.id.flContainer, frag)
-                .commit();
+        fragmentManager.beginTransaction().replace(R.id.flContainer, frag).commit();
       }
     } else {
       // Set default selection

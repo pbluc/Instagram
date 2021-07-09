@@ -15,8 +15,10 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ProgressBar;
 import android.widget.Toast;
 
+import com.codepath.pbluc.instagram.CommentsActivity;
 import com.codepath.pbluc.instagram.EditProfileActivity;
 import com.codepath.pbluc.instagram.MainActivity;
 import com.codepath.pbluc.instagram.R;
@@ -41,12 +43,13 @@ public class FeedFragment extends Fragment implements PostsAdapter.ListItemClick
   private RecyclerView rvPosts;
   private SwipeRefreshLayout swipeContainer;
   private EndlessRecyclerViewScrollListener scrollListener;
+  private ProgressBar pb;
 
   private PostsAdapter adapter;
   private List<Post> allPosts;
 
   public FeedFragment() {
-      // Required empty public constructor
+    // Required empty public constructor
   }
 
   @Override
@@ -61,6 +64,8 @@ public class FeedFragment extends Fragment implements PostsAdapter.ListItemClick
     super.onViewCreated(view, savedInstanceState);
     rvPosts = view.findViewById(R.id.rvPosts);
     swipeContainer = view.findViewById(R.id.swipeContainer);
+
+    pb = view.findViewById(R.id.pbLoading);
 
     // Setup refresh listener which triggers new data loading
     swipeContainer.setOnRefreshListener(
@@ -87,11 +92,14 @@ public class FeedFragment extends Fragment implements PostsAdapter.ListItemClick
           public void onLoadMore(int page, int totalItemsCount, RecyclerView view) {
             // Triggered only when new data needs to be appended to the list
             // Add whatever code is needed to append new items to bottom of the list
+            pb.setVisibility(ProgressBar.VISIBLE);
             loadNextDataFromParse(page);
           }
         };
     // Adds the scroll listener to RecyclerView
     rvPosts.addOnScrollListener(scrollListener);
+
+    pb.setVisibility(View.VISIBLE);
     // query posts from Parstagram
     queryPosts();
   }
@@ -120,6 +128,8 @@ public class FeedFragment extends Fragment implements PostsAdapter.ListItemClick
               Log.e(TAG, "Issue with getting more loaded posts", e);
               return;
             }
+
+            pb.setVisibility(ProgressBar.INVISIBLE);
 
             // save received posts to list and notify adapter of new data
             allPosts.addAll(posts);
@@ -177,6 +187,7 @@ public class FeedFragment extends Fragment implements PostsAdapter.ListItemClick
               Log.e(TAG, "Issue with getting posts", e);
               return;
             }
+            pb.setVisibility(View.INVISIBLE);
 
             // save received posts to list and notify adapter of new data
             allPosts.addAll(posts);
@@ -185,12 +196,20 @@ public class FeedFragment extends Fragment implements PostsAdapter.ListItemClick
         });
   }
 
-    @Override
-    public void onUserProfileTo(int position) {
-        Toast.makeText(getContext(), "Going to user clicked's profile page!", Toast.LENGTH_SHORT).show();
-        Intent intent = new Intent(getContext(), MainActivity.class);
-        intent.putExtra("openProfileFragmentOnUser", true);
-        intent.putExtra("openProfileFragmentOnUser ParseUser", allPosts.get(position).getUser());
-        startActivity(intent);
-    }
+  @Override
+  public void onUserProfileTo(int position) {
+    Toast.makeText(getContext(), "Going to user clicked's profile page!", Toast.LENGTH_SHORT)
+        .show();
+    Intent intent = new Intent(getContext(), MainActivity.class);
+    intent.putExtra("openProfileFragmentOnUser", true);
+    intent.putExtra("openProfileFragmentOnUser ParseUser", allPosts.get(position).getUser());
+    startActivity(intent);
+  }
+
+  @Override
+  public void openCommentsActivity(int position) {
+    Intent intent = new Intent(getContext(), CommentsActivity.class);
+    intent.putExtra("relatedPostToComments", allPosts.get(position));
+    startActivity(intent);
+  }
 }
