@@ -62,7 +62,7 @@ public class ProfileFragment extends FeedFragment {
 
   @Override
   public View onCreateView(
-          LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+      LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
     // Inflate the layout for this fragment
     return inflater.inflate(R.layout.fragment_profile, container, false);
   }
@@ -88,7 +88,8 @@ public class ProfileFragment extends FeedFragment {
     tvPostsCount.setText(parseUser.getNumber("Posts").toString());
     tvFollowersCount.setText(parseUser.getNumber("Followers").toString());
     tvFollowingCount.setText(parseUser.getNumber("Following").toString());
-    tvUserFullName.setText(parseUser.getString("firstName") + " " + parseUser.getString("lastName"));
+    tvUserFullName.setText(
+        parseUser.getString("firstName") + " " + parseUser.getString("lastName"));
     tvPronouns.setText(parseUser.getString("pronouns"));
     tvBio.setText(parseUser.getString("bio"));
     tvWebsite.setText(parseUser.getString("website"));
@@ -98,20 +99,21 @@ public class ProfileFragment extends FeedFragment {
       Glide.with(getContext()).load(image.getUrl()).into(ivProfileImage);
     }
 
-    btnEditProfile.setOnClickListener(new View.OnClickListener() {
-      @Override
-      public void onClick(View v) {
-        goEditProfileActivity();
-      }
-    });
+    btnEditProfile.setOnClickListener(
+        new View.OnClickListener() {
+          @Override
+          public void onClick(View v) {
+            goEditProfileActivity();
+          }
+        });
 
     swipeContainer.setOnRefreshListener(
-            new SwipeRefreshLayout.OnRefreshListener() {
-              @Override
-              public void onRefresh() {
-                fetchTimelineAsync(0);
-              }
-            });
+        new SwipeRefreshLayout.OnRefreshListener() {
+          @Override
+          public void onRefresh() {
+            fetchTimelineAsync(0);
+          }
+        });
 
     allPosts = new ArrayList<>();
     adapter = new ProfileAdapter(getContext(), allPosts);
@@ -122,14 +124,14 @@ public class ProfileFragment extends FeedFragment {
     rvPosts.setLayoutManager(gridLayoutManager);
     // Retain an instance so that we can call `resetState()` for fresh searches
     scrollListener =
-            new EndlessRecyclerViewScrollListener(gridLayoutManager) {
-              @Override
-              public void onLoadMore(int page, int totalItemsCount, RecyclerView view) {
-                // Triggered only when new data needs to be appended to the list
-                // Add whatever code is needed to append new items to bottom of the list
-                loadNextDataFromParse(page);
-              }
-            };
+        new EndlessRecyclerViewScrollListener(gridLayoutManager) {
+          @Override
+          public void onLoadMore(int page, int totalItemsCount, RecyclerView view) {
+            // Triggered only when new data needs to be appended to the list
+            // Add whatever code is needed to append new items to bottom of the list
+            loadNextDataFromParse(page);
+          }
+        };
     // Adds the scroll listener to RecyclerView
     rvPosts.addOnScrollListener(scrollListener);
     // query posts from Parstagram
@@ -208,23 +210,22 @@ public class ProfileFragment extends FeedFragment {
     query.addDescendingOrder("createdAt");
     // start an asynchronous call for posts
     query.findInBackground(
-            new FindCallback<Post>() {
-              @Override
-              public void done(List<Post> posts, ParseException e) {
-                // check for errors
-                if (e != null) {
-                  Log.e(TAG, "Issue with getting refreshed posts", e);
-                  return;
-                }
+        new FindCallback<Post>() {
+          @Override
+          public void done(List<Post> posts, ParseException e) {
+            // check for errors
+            if (e != null) {
+              Log.e(TAG, "Issue with getting refreshed posts", e);
+              return;
+            }
 
-                // Clear out old items before appending in the new ones
-                adapter.clear();
-                // The data has come back, add new items to adapter
-                adapter.addAll(posts);
-                // Call setRefreshing(false) to signal refresh has finished
-                swipeContainer.setRefreshing(false);
-              }
-            });
+            // Clear out old items before appending in the new ones
+            adapter.clear();
+            // The data has come back, add new items to adapter
+            adapter.addAll(posts);
+            // Call setRefreshing(false) to signal refresh has finished
+            swipeContainer.setRefreshing(false);
+          }
+        });
   }
-
 }

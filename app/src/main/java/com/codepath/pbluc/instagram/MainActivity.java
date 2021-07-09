@@ -36,12 +36,15 @@ public class MainActivity extends AppCompatActivity {
     bottomNavigationView = findViewById(R.id.bottom_navigation);
 
     Bundle extras = getIntent().getExtras();
-    if(extras != null && extras.containsKey("openProfileFragment")) {
+    if (extras != null && extras.containsKey("openProfileFragment")) {
       boolean openProfileFragment = extras.getBoolean("openProfileFragment");
-      if(openProfileFragment) {
+      if (openProfileFragment) {
         bottomNavigationView.setSelectedItemId(R.id.action_profile);
         extras = null;
-        fragmentManager.beginTransaction().replace(R.id.flContainer, new ProfileFragment()).commit();
+        fragmentManager
+            .beginTransaction()
+            .replace(R.id.flContainer, new ProfileFragment())
+            .commit();
       }
     } else {
       // Set default selection
@@ -56,19 +59,19 @@ public class MainActivity extends AppCompatActivity {
             Fragment fragment;
             switch (item.getItemId()) {
               case R.id.action_home:
-                //Toast.makeText(MainActivity.this, "Home!", Toast.LENGTH_SHORT).show();
+                // Toast.makeText(MainActivity.this, "Home!", Toast.LENGTH_SHORT).show();
                 fragment = new FeedFragment();
                 break;
               case R.id.action_compose:
-                //Toast.makeText(MainActivity.this, "Compose!", Toast.LENGTH_SHORT).show();
+                // Toast.makeText(MainActivity.this, "Compose!", Toast.LENGTH_SHORT).show();
                 fragment = new ComposeFragment();
                 break;
               case R.id.action_profile:
-                //Toast.makeText(MainActivity.this, "Profile!", Toast.LENGTH_SHORT).show();
+                // Toast.makeText(MainActivity.this, "Profile!", Toast.LENGTH_SHORT).show();
                 fragment = new ProfileFragment();
                 break;
               default:
-                //Toast.makeText(MainActivity.this, "Home!", Toast.LENGTH_SHORT).show();
+                // Toast.makeText(MainActivity.this, "Home!", Toast.LENGTH_SHORT).show();
                 fragment = new FeedFragment();
                 break;
             }
