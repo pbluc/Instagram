@@ -2,7 +2,7 @@
 
 **InstagramClone** is a photo sharing app using Parse as its backend.
 
-Time spent: **12.25** hours spent in total
+Time spent: **16.25** hours spent in total
 
 ## User Stories
 
@@ -29,7 +29,7 @@ The following **stretch** features are implemented:
   - [x] Profile Tab (to view only the current user's posts, in a grid)
 - [ ] Show the username and creation time for each post
 - User Profiles:
-  - [ ] Allow the logged in user to add a profile photo
+  - [x] Allow the logged in user to add a profile photo
   - [ ] Display the profile photo with each post
   - [ ] Tapping on a post's username or profile photo goes to that user's profile page
   - [x] User Profile shows posts in a grid
