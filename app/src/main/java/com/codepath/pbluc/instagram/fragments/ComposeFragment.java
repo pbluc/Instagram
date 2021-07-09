@@ -20,6 +20,7 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import com.codepath.pbluc.instagram.LoginActivity;
@@ -53,6 +54,8 @@ public class ComposeFragment extends Fragment {
     private ImageView ivPostImage;
     private Button btnSubmit;
 
+    private ProgressBar pb;
+
     public ComposeFragment() {
         // Required empty public constructor
     }
@@ -75,6 +78,8 @@ public class ComposeFragment extends Fragment {
         btnCaptureImage = view.findViewById(R.id.btnCaptureImage);
         ivPostImage = view.findViewById(R.id.ivPostImage);
         btnSubmit = view.findViewById(R.id.btnSubmit);
+
+        pb = view.findViewById(R.id.pbLoading);
 
         btnLogout.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -105,6 +110,8 @@ public class ComposeFragment extends Fragment {
                     return;
                 }
                 ParseUser currentUser = ParseUser.getCurrentUser();
+
+                pb.setVisibility(ProgressBar.VISIBLE);
                 savePost(caption, currentUser, photoFile);
             }
         });
@@ -173,6 +180,7 @@ public class ComposeFragment extends Fragment {
                     Toast.makeText(getContext(), "Error while saving!", Toast.LENGTH_LONG).show();
                 }
                 Log.i(TAG, "Post save was successful!!");
+                pb.setVisibility(ProgressBar.INVISIBLE);
                 etCaption.setText("");
                 ivPostImage.setImageResource(0);
             }
