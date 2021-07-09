@@ -51,20 +51,14 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.ViewHolder> 
           @Override
           public void onClick(View v) {
             Log.i(TAG, "View holder onClick success");
+            int lengthTvCaption = holder.tvCaption.getText().toString().length();
 
-            Date createdAt = post.getCreatedAt();
-            String timeAgo = Post.calculateTimeAgo(createdAt);
-            holder.tvCreatedAt.setText(timeAgo);
-            if (holder.tvCreatedAt.getVisibility() == View.VISIBLE) {
-              holder.tvCreatedAt.setVisibility(View.GONE);
-
+            if (lengthTvCaption > CAPTION_MAX_LENGTH) {
               InputFilter[] fArray = new InputFilter[1];
               fArray[0] = new InputFilter.LengthFilter(CAPTION_MAX_LENGTH);
               holder.tvCaption.setFilters(fArray);
               holder.tvCaption.setText(post.getCaption());
             } else {
-              holder.tvCreatedAt.setVisibility(View.VISIBLE);
-
               InputFilter[] fArray = new InputFilter[1];
               fArray[0] = new InputFilter.LengthFilter(post.getCaption().length());
               holder.tvCaption.setFilters(fArray);
@@ -97,6 +91,7 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.ViewHolder> 
     private TextView tvCaption;
     private TextView tvCreatedAt;
     private ImageView ivImage;
+    private ImageView ivProfileImage;
 
     public ViewHolder(@NonNull View itemView) {
       super(itemView);
@@ -104,16 +99,28 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.ViewHolder> 
       tvCaption = itemView.findViewById(R.id.tvCaption);
       tvCreatedAt = itemView.findViewById(R.id.tvCreatedAt);
       ivImage = itemView.findViewById(R.id.ivImage);
+      ivProfileImage = itemView.findViewById(R.id.ivProfileImage);
     }
 
     public void bind(Post post) {
       // Bind the post data to the view elements
       tvCaption.setText(post.getCaption());
       tvUsername.setText(post.getUser().getUsername());
+
+      Date createdAt = post.getCreatedAt();
+      String timeAgo = Post.calculateTimeAgo(createdAt);
+      tvCreatedAt.setText(timeAgo);
+
       ParseFile image = post.getImage();
       if (image != null) {
         Glide.with(context).load(image.getUrl()).into(ivImage);
       }
+
+      ParseFile profileImage = post.getUser().getParseFile("profileImg");
+      if(profileImage != null) {
+        Glide.with(context).load(profileImage.getUrl()).into(ivProfileImage);
+      }
+
     }
   }
 }
