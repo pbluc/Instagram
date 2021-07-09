@@ -16,8 +16,9 @@ public class Post extends ParseObject {
     public static final String KEY_CAPTION = "caption";
     public static final String KEY_IMAGE = "image";
     public static final String KEY_USER = "user";
-    public static final String KEY_PROFILE_IMAGE = "profileImg";
     private static final String TAG = "Post.java";
+
+    private boolean expandCaption = false;
 
     public String getCaption() {
         return getString(KEY_CAPTION);
@@ -42,6 +43,10 @@ public class Post extends ParseObject {
     public void setUser(ParseUser user) {
         put(KEY_USER, user);
     }
+
+    public boolean isExpandCaption() { return expandCaption; }
+
+    public void setExpandCaption(boolean captionState) { expandCaption = captionState; }
 
     @NonNull
     @Override

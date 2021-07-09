@@ -11,6 +11,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.cardview.widget.CardView;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
@@ -24,14 +25,17 @@ import java.util.List;
 public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.ViewHolder> {
 
   private static final String TAG = "PostsAdapter";
-  private static final int CAPTION_MAX_LENGTH = 125;
+  public static final int CAPTION_MAX_LENGTH = 125;
 
   private Context context;
   private List<Post> posts;
 
-  public PostsAdapter(Context context, List<Post> posts) {
+  final private ListItemClickListener mOnClickListener;
+
+  public PostsAdapter(Context context, List<Post> posts, ListItemClickListener onClickListener) {
     this.context = context;
     this.posts = posts;
+    this.mOnClickListener = onClickListener;
   }
 
   @NonNull
@@ -46,26 +50,25 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.ViewHolder> 
     Post post = posts.get(position);
     holder.bind(post);
 
-    holder.itemView.setOnClickListener(
-        new View.OnClickListener() {
-          @Override
-          public void onClick(View v) {
-            Log.i(TAG, "View holder onClick success");
-            int lengthTvCaption = holder.tvCaption.getText().toString().length();
+    holder.tvCaption.setOnClickListener(new View.OnClickListener() {
+      @Override
+      public void onClick(View v) {
+        Log.i(TAG, "View holder onClick success");
+        Post post = posts.get(position);
+        boolean expandCaption = post.isExpandCaption();
 
-            if (lengthTvCaption > CAPTION_MAX_LENGTH) {
-              InputFilter[] fArray = new InputFilter[1];
-              fArray[0] = new InputFilter.LengthFilter(CAPTION_MAX_LENGTH);
-              holder.tvCaption.setFilters(fArray);
-              holder.tvCaption.setText(post.getCaption());
-            } else {
-              InputFilter[] fArray = new InputFilter[1];
-              fArray[0] = new InputFilter.LengthFilter(post.getCaption().length());
-              holder.tvCaption.setFilters(fArray);
-              holder.tvCaption.setText(post.getCaption());
-            }
-          }
-        });
+        InputFilter[] fArray = new InputFilter[1];
+        if (expandCaption) {
+          fArray[0] = new InputFilter.LengthFilter(CAPTION_MAX_LENGTH);
+        } else {
+          fArray[0] = new InputFilter.LengthFilter(post.getCaption().length());
+        }
+        holder.tvCaption.setFilters(fArray);
+        holder.tvCaption.setText(post.getCaption());
+
+        post.setExpandCaption(!expandCaption);
+      }
+    });
   }
 
   @Override
@@ -85,13 +88,14 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.ViewHolder> 
     notifyDataSetChanged();
   }
 
-  class ViewHolder extends RecyclerView.ViewHolder {
+  class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
 
     private TextView tvUsername;
     private TextView tvCaption;
     private TextView tvCreatedAt;
     private ImageView ivImage;
     private ImageView ivProfileImage;
+    private CardView cardView;
 
     public ViewHolder(@NonNull View itemView) {
       super(itemView);
@@ -100,6 +104,11 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.ViewHolder> 
       tvCreatedAt = itemView.findViewById(R.id.tvCreatedAt);
       ivImage = itemView.findViewById(R.id.ivImage);
       ivProfileImage = itemView.findViewById(R.id.ivProfileImage);
+      cardView = itemView.findViewById(R.id.cardView);
+
+      tvUsername.setOnClickListener(this);
+      cardView.setOnClickListener(this);
+
     }
 
     public void bind(Post post) {
@@ -122,5 +131,23 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.ViewHolder> 
       }
 
     }
+
+    @Override
+    public void onClick(View view) {
+      int position = getAdapterPosition();
+      switch(view.getId()) {
+        case R.id.tvUsername:
+        case R.id.cardView:
+          mOnClickListener.onUserProfileTo(position);
+          break;
+        default:
+          break;
+
+      }
+    }
+  }
+
+  public interface ListItemClickListener {
+    void onUserProfileTo(int position);
   }
 }

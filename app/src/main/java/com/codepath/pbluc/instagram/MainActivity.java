@@ -9,6 +9,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.MenuItem;
+import android.view.View;
 
 import com.codepath.pbluc.instagram.fragments.ComposeFragment;
 import com.codepath.pbluc.instagram.fragments.FeedFragment;
@@ -45,6 +46,29 @@ public class MainActivity extends AppCompatActivity {
             .beginTransaction()
             .replace(R.id.flContainer, new ProfileFragment())
             .commit();
+      }
+    } else if(extras != null && extras.containsKey("openProfileFragmentOnUser") && extras.containsKey("openProfileFragmentOnUser ParseUser")) {
+      boolean openProfileFragmentOnUser = extras.getBoolean("openProfileFragmentOnUser");
+      ParseUser profileUser = extras.getParcelable("openProfileFragmentOnUser ParseUser");
+
+      if (openProfileFragmentOnUser) {
+        Fragment frag = new ProfileFragment();
+
+        Bundle bundle = new Bundle();
+        bundle.putParcelable("otherParseUser", profileUser);
+        frag.setArguments(bundle);
+
+        if(!profileUser.getObjectId().equals(ParseUser.getCurrentUser().getObjectId())) {
+          bottomNavigationView.setSelectedItemId(R.id.action_home);
+        } else {
+          bottomNavigationView.setSelectedItemId(R.id.action_profile);
+        }
+
+        extras = null;
+        fragmentManager
+                .beginTransaction()
+                .replace(R.id.flContainer, frag)
+                .commit();
       }
     } else {
       // Set default selection

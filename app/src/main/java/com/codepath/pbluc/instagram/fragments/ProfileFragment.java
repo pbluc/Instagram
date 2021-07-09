@@ -56,6 +56,8 @@ public class ProfileFragment extends FeedFragment {
   private List<Post> allPosts;
   private ProfileAdapter adapter;
 
+  private ParseUser profileUser;
+
   public ProfileFragment() {
     // Required empty public constructor
   }
@@ -83,29 +85,43 @@ public class ProfileFragment extends FeedFragment {
     swipeContainer = view.findViewById(R.id.swipeContainer);
     rvPosts = view.findViewById(R.id.rvPosts);
 
-    ParseUser parseUser = ParseUser.getCurrentUser();
-    tvUsername.setText(parseUser.getUsername());
-    tvPostsCount.setText(parseUser.getNumber("Posts").toString());
-    tvFollowersCount.setText(parseUser.getNumber("Followers").toString());
-    tvFollowingCount.setText(parseUser.getNumber("Following").toString());
-    tvUserFullName.setText(
-        parseUser.getString("firstName") + " " + parseUser.getString("lastName"));
-    tvPronouns.setText(parseUser.getString("pronouns"));
-    tvBio.setText(parseUser.getString("bio"));
-    tvWebsite.setText(parseUser.getString("website"));
+    Bundle bundle = this.getArguments();
+    if(bundle != null) {
+      profileUser = bundle.getParcelable("otherParseUser");
+    } else {
+      profileUser = ParseUser.getCurrentUser();
+    }
 
-    ParseFile image = parseUser.getParseFile("profileImg");
+    tvUsername.setText(profileUser.getUsername());
+    tvPostsCount.setText(profileUser.getNumber("Posts").toString());
+    tvFollowersCount.setText(profileUser.getNumber("Followers").toString());
+    tvFollowingCount.setText(profileUser.getNumber("Following").toString());
+    tvUserFullName.setText(
+        profileUser.getString("firstName") + " " + profileUser.getString("lastName"));
+    tvPronouns.setText(profileUser.getString("pronouns"));
+    tvBio.setText(profileUser.getString("bio"));
+    tvWebsite.setText(profileUser.getString("website"));
+
+    ParseFile image = profileUser.getParseFile("profileImg");
     if (image != null) {
       Glide.with(getContext()).load(image.getUrl()).into(ivProfileImage);
     }
 
-    btnEditProfile.setOnClickListener(
-        new View.OnClickListener() {
-          @Override
-          public void onClick(View v) {
-            goEditProfileActivity();
-          }
-        });
+    if(!profileUser.getObjectId().equals(ParseUser.getCurrentUser().getObjectId())) {
+      Log.i(TAG, "Attempting to NOT show visibility");
+      // Profile displayed is not that of current user
+      btnEditProfile.setVisibility(View.GONE);
+    } else {
+      Log.i(TAG, "Attempting to show visibility");
+      btnEditProfile.setVisibility(View.VISIBLE);
+      btnEditProfile.setOnClickListener(
+              new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                  goEditProfileActivity();
+                }
+              });
+    }
 
     swipeContainer.setOnRefreshListener(
         new SwipeRefreshLayout.OnRefreshListener() {
@@ -146,7 +162,7 @@ public class ProfileFragment extends FeedFragment {
   private void queryPosts() {
     ParseQuery<Post> query = ParseQuery.getQuery(Post.class);
     query.include(Post.KEY_USER);
-    query.whereEqualTo(Post.KEY_USER, ParseUser.getCurrentUser());
+    query.whereEqualTo(Post.KEY_USER, profileUser);
     query.setLimit(QUERY_AMOUNT_LIMIT);
     query.addDescendingOrder(Post.KEY_CREATED_AT);
     query.findInBackground(
@@ -171,7 +187,7 @@ public class ProfileFragment extends FeedFragment {
     ParseQuery<Post> query = ParseQuery.getQuery(Post.class);
     // include data referred by user key
     query.include(Post.KEY_USER);
-    query.whereEqualTo(Post.KEY_USER, ParseUser.getCurrentUser());
+    query.whereEqualTo(Post.KEY_USER, profileUser);
     // limit query to latest 20 items
     query.setLimit(QUERY_AMOUNT_LIMIT);
     // query searches for posts older than posts currently populating and orders by creation date
@@ -203,7 +219,7 @@ public class ProfileFragment extends FeedFragment {
     ParseQuery<Post> query = ParseQuery.getQuery(Post.class);
     // include data referred by user key
     query.include(Post.KEY_USER);
-    query.whereEqualTo(Post.KEY_USER, ParseUser.getCurrentUser());
+    query.whereEqualTo(Post.KEY_USER, profileUser);
     // limit query to latest 20 items
     query.setLimit(QUERY_AMOUNT_LIMIT);
     // order posts by creation date (newest first)

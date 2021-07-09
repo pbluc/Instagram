@@ -10,11 +10,15 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
+import android.text.InputFilter;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
+import com.codepath.pbluc.instagram.EditProfileActivity;
+import com.codepath.pbluc.instagram.MainActivity;
 import com.codepath.pbluc.instagram.R;
 import com.codepath.pbluc.instagram.adapters.PostsAdapter;
 import com.codepath.pbluc.instagram.listeners.EndlessRecyclerViewScrollListener;
@@ -26,8 +30,10 @@ import com.parse.ParseQuery;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.codepath.pbluc.instagram.adapters.PostsAdapter.CAPTION_MAX_LENGTH;
+
 /** A simple {@link Fragment} subclass. */
-public class FeedFragment extends Fragment {
+public class FeedFragment extends Fragment implements PostsAdapter.ListItemClickListener {
 
   private static final String TAG = "FeedFragment";
   protected static final int QUERY_AMOUNT_LIMIT = 20;
@@ -67,7 +73,7 @@ public class FeedFragment extends Fragment {
 
     // initialize the array that will hold posts and create a PostsAdapter
     allPosts = new ArrayList<>();
-    adapter = new PostsAdapter(getContext(), allPosts);
+    adapter = new PostsAdapter(getContext(), allPosts, this);
 
     // set adapter on the recycler view
     rvPosts.setAdapter(adapter);
@@ -178,4 +184,13 @@ public class FeedFragment extends Fragment {
           }
         });
   }
+
+    @Override
+    public void onUserProfileTo(int position) {
+        Toast.makeText(getContext(), "Going to user clicked's profile page!", Toast.LENGTH_SHORT).show();
+        Intent intent = new Intent(getContext(), MainActivity.class);
+        intent.putExtra("openProfileFragmentOnUser", true);
+        intent.putExtra("openProfileFragmentOnUser ParseUser", allPosts.get(position).getUser());
+        startActivity(intent);
+    }
 }
