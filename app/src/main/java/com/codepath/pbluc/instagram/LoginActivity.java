@@ -24,7 +24,6 @@ public class LoginActivity extends AppCompatActivity {
   private EditText etPassword;
   private Button btnLogin;
   private Button btnSignUp;
-
   private ProgressBar pb;
 
   @Override
@@ -40,7 +39,6 @@ public class LoginActivity extends AppCompatActivity {
     etPassword = findViewById(R.id.etPassword);
     btnLogin = findViewById(R.id.btnLogin);
     btnSignUp = findViewById(R.id.btnSignUp);
-
     pb = findViewById(R.id.pbLoading);
 
     btnLogin.setOnClickListener(
@@ -69,7 +67,6 @@ public class LoginActivity extends AppCompatActivity {
   }
 
   private void signUpUser(String username, String password) {
-    Log.i(TAG, "Attempting to create a new user " + username);
 
     // Create the ParseUser
     ParseUser user = new ParseUser();
@@ -82,21 +79,16 @@ public class LoginActivity extends AppCompatActivity {
           @Override
           public void done(ParseException e) {
             if (e != null) {
-              // TODO: better error handling
-              Log.e(TAG, "Issue with creating account", e);
               Toast.makeText(LoginActivity.this, "Issue with signup!!", Toast.LENGTH_LONG).show();
               return;
             }
             pb.setVisibility(View.INVISIBLE);
-            // TODO: navigate to the main activity if the user has signed in properly
             goFeedActivity();
-            Toast.makeText(LoginActivity.this, "Success!", Toast.LENGTH_LONG).show();
           }
         });
   }
 
   private void loginUser(String username, String password) {
-    Log.i(TAG, "Attempting to login user " + username);
 
     ParseUser.logInInBackground(
         username,
@@ -105,15 +97,11 @@ public class LoginActivity extends AppCompatActivity {
           @Override
           public void done(ParseUser user, ParseException e) {
             if (e != null) {
-              // TODO: better error handling
-              Log.e(TAG, "Issue with login", e);
               Toast.makeText(LoginActivity.this, "Issue with login!!", Toast.LENGTH_LONG).show();
               return;
             }
             pb.setVisibility(View.INVISIBLE);
-            // TODO: navigate to the main activity if the user has signed in properly
             goFeedActivity();
-            Toast.makeText(LoginActivity.this, "Success!", Toast.LENGTH_LONG).show();
           }
         });
   }

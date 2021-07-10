@@ -86,7 +86,6 @@ public class ProfileFragment extends FeedFragment {
     ivProfileImage = view.findViewById(R.id.ivProfileImage);
     swipeContainer = view.findViewById(R.id.swipeContainer);
     rvPosts = view.findViewById(R.id.rvPosts);
-
     pb = view.findViewById(R.id.pbLoading);
 
     Bundle bundle = this.getArguments();
@@ -111,12 +110,18 @@ public class ProfileFragment extends FeedFragment {
       Glide.with(getContext()).load(image.getUrl()).into(ivProfileImage);
     }
 
+    allPosts = new ArrayList<>();
+    adapter = new ProfileAdapter(getContext(), allPosts);
+    // set adapter on the recycler view
+    rvPosts.setAdapter(adapter);
+    // set the layout manager on the recycler view
+    GridLayoutManager gridLayoutManager = new GridLayoutManager(getContext(), NUMBER_OF_COLUMNS);
+    rvPosts.setLayoutManager(gridLayoutManager);
+
     if (!profileUser.getObjectId().equals(ParseUser.getCurrentUser().getObjectId())) {
-      Log.i(TAG, "Attempting to NOT show visibility");
       // Profile displayed is not that of current user
       btnEditProfile.setVisibility(View.GONE);
     } else {
-      Log.i(TAG, "Attempting to show visibility");
       btnEditProfile.setVisibility(View.VISIBLE);
       btnEditProfile.setOnClickListener(
           new View.OnClickListener() {
@@ -131,17 +136,10 @@ public class ProfileFragment extends FeedFragment {
         new SwipeRefreshLayout.OnRefreshListener() {
           @Override
           public void onRefresh() {
-            fetchTimelineAsync(0);
+            fetchTimelineAsync();
           }
         });
 
-    allPosts = new ArrayList<>();
-    adapter = new ProfileAdapter(getContext(), allPosts);
-    // set adapter on the recycler view
-    rvPosts.setAdapter(adapter);
-    // set the layout manager on the recycler view
-    GridLayoutManager gridLayoutManager = new GridLayoutManager(getContext(), NUMBER_OF_COLUMNS);
-    rvPosts.setLayoutManager(gridLayoutManager);
     // Retain an instance so that we can call `resetState()` for fresh searches
     scrollListener =
         new EndlessRecyclerViewScrollListener(gridLayoutManager) {
@@ -178,13 +176,11 @@ public class ProfileFragment extends FeedFragment {
           public void done(List<Post> posts, ParseException e) {
             // check for errors
             if (e != null) {
-              Log.e(TAG, "Issue with getting posts", e);
               return;
             }
 
             pb.setVisibility(View.INVISIBLE);
 
-            Log.i(TAG, "Posts: " + posts.toString());
             allPosts.addAll(posts);
             adapter.notifyDataSetChanged();
           }
@@ -213,7 +209,6 @@ public class ProfileFragment extends FeedFragment {
             Log.i(TAG, "Loaded posts: " + posts.toString());
             // check for errors
             if (e != null) {
-              Log.e(TAG, "Issue with getting more loaded posts", e);
               return;
             }
 
@@ -226,7 +221,7 @@ public class ProfileFragment extends FeedFragment {
         });
   }
 
-  private void fetchTimelineAsync(int i) {
+  private void fetchTimelineAsync() {
     // specify what type of data we want to query - Post.class
     ParseQuery<Post> query = ParseQuery.getQuery(Post.class);
     // include data referred by user key
@@ -235,7 +230,7 @@ public class ProfileFragment extends FeedFragment {
     // limit query to latest 20 items
     query.setLimit(QUERY_AMOUNT_LIMIT);
     // order posts by creation date (newest first)
-    query.addDescendingOrder("createdAt");
+    query.addDescendingOrder(Post.KEY_CREATED_AT);
     // start an asynchronous call for posts
     query.findInBackground(
         new FindCallback<Post>() {
@@ -243,7 +238,6 @@ public class ProfileFragment extends FeedFragment {
           public void done(List<Post> posts, ParseException e) {
             // check for errors
             if (e != null) {
-              Log.e(TAG, "Issue with getting refreshed posts", e);
               return;
             }
 

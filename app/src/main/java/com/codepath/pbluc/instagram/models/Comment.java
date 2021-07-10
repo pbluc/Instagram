@@ -16,7 +16,6 @@ public class Comment extends ParseObject {
   public static final String KEY_COMMENT = "comment";
   public static final String KEY_LIKES = "likes";
 
-  private static final String TAG = "Comment.java";
 
   public ParseUser getUserCommentor() {
     return getParseUser(KEY_USER_COMMENT);
@@ -54,9 +53,6 @@ public class Comment extends ParseObject {
     return getInt(KEY_LIKES);
   }
 
-  public void updateLikeCount() {
-    put(KEY_LIKES, getLikeCount() + 1);
-  }
 
   @NonNull
   @Override

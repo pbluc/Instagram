@@ -45,7 +45,6 @@ public class EditProfileActivity extends AppCompatActivity {
   private EditText etPronouns;
   private EditText etWebsite;
   private EditText etBio;
-
   private ProgressBar pb;
 
   private ParseUser parseUser;
@@ -65,7 +64,6 @@ public class EditProfileActivity extends AppCompatActivity {
     etPronouns = findViewById(R.id.etPronouns);
     etWebsite = findViewById(R.id.etWebsite);
     etBio = findViewById(R.id.etBio);
-
     pb = findViewById(R.id.pbLoading);
 
     parseUser = ParseUser.getCurrentUser();
@@ -75,6 +73,11 @@ public class EditProfileActivity extends AppCompatActivity {
     etPronouns.setText(parseUser.getString("pronouns"));
     etUsername.setText(parseUser.getString("username"));
     etFullName.setText(parseUser.get("firstName") + " " + parseUser.getString("lastName"));
+
+    ParseFile image = parseUser.getParseFile("profileImg");
+    if (image != null) {
+      Glide.with(this).load(image.getUrl()).into(ivProfileImage);
+    }
 
     tvChangeProfileImg.setOnClickListener(
         new View.OnClickListener() {
@@ -91,11 +94,6 @@ public class EditProfileActivity extends AppCompatActivity {
             getNewProfilePhoto();
           }
         });
-
-    ParseFile image = parseUser.getParseFile("profileImg");
-    if (image != null) {
-      Glide.with(this).load(image.getUrl()).into(ivProfileImage);
-    }
 
     ivCloseActivity.setOnClickListener(
         new View.OnClickListener() {
@@ -136,7 +134,6 @@ public class EditProfileActivity extends AppCompatActivity {
               @Override
               public void done(ParseException e) {
                 if (e == null) {
-                  Log.i(TAG, "Parse file successfully saved");
 
                   String fullName = etFullName.getText().toString().trim();
                   String[] firstAndLastName = fullName.split(" ");
@@ -165,7 +162,6 @@ public class EditProfileActivity extends AppCompatActivity {
                         public void done(ParseException e) {
                           // Save successful
                           if (e == null) {
-                            Log.i(TAG, "Save successful!");
                             pb.setVisibility(View.INVISIBLE);
                             Toast.makeText(
                                     EditProfileActivity.this,
@@ -175,7 +171,6 @@ public class EditProfileActivity extends AppCompatActivity {
                             goProfileFragment();
                           } else {
                             // Something went wrong while saving
-                            Log.e(TAG, "Save unsuccessful: " + e);
                             Toast.makeText(
                                     EditProfileActivity.this,
                                     "Save unsuccessful",

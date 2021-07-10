@@ -64,17 +64,7 @@ public class FeedFragment extends Fragment implements PostsAdapter.ListItemClick
     super.onViewCreated(view, savedInstanceState);
     rvPosts = view.findViewById(R.id.rvPosts);
     swipeContainer = view.findViewById(R.id.swipeContainer);
-
     pb = view.findViewById(R.id.pbLoading);
-
-    // Setup refresh listener which triggers new data loading
-    swipeContainer.setOnRefreshListener(
-        new SwipeRefreshLayout.OnRefreshListener() {
-          @Override
-          public void onRefresh() {
-            fetchTimelineAsync(0);
-          }
-        });
 
     // initialize the array that will hold posts and create a PostsAdapter
     allPosts = new ArrayList<>();
@@ -85,6 +75,16 @@ public class FeedFragment extends Fragment implements PostsAdapter.ListItemClick
     // set the layout manager on the recycler view
     LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getContext());
     rvPosts.setLayoutManager(linearLayoutManager);
+
+    // Setup refresh listener which triggers new data loading
+    swipeContainer.setOnRefreshListener(
+        new SwipeRefreshLayout.OnRefreshListener() {
+          @Override
+          public void onRefresh() {
+            fetchTimelineAsync();
+          }
+        });
+
     // Retain an instance so that we can call `resetState()` for fresh searches
     scrollListener =
         new EndlessRecyclerViewScrollListener(linearLayoutManager) {
@@ -115,17 +115,15 @@ public class FeedFragment extends Fragment implements PostsAdapter.ListItemClick
     // query searches for posts older than posts currently populating and orders by creation date
     // (newest first)
     query
-        .whereLessThan("createdAt", allPosts.get(allPosts.size() - 1).getCreatedAt())
-        .addDescendingOrder("createdAt");
+        .whereLessThan(Post.KEY_CREATED_AT, allPosts.get(allPosts.size() - 1).getCreatedAt())
+        .addDescendingOrder(Post.KEY_CREATED_AT);
     // start an asynchronous call for posts
     query.findInBackground(
         new FindCallback<Post>() {
           @Override
           public void done(List<Post> posts, ParseException e) {
-            Log.i(TAG, "Loaded posts: " + posts.toString());
             // check for errors
             if (e != null) {
-              Log.e(TAG, "Issue with getting more loaded posts", e);
               return;
             }
 
@@ -138,7 +136,7 @@ public class FeedFragment extends Fragment implements PostsAdapter.ListItemClick
         });
   }
 
-  private void fetchTimelineAsync(int i) {
+  private void fetchTimelineAsync() {
     // specify what type of data we want to query - Post.class
     ParseQuery<Post> query = ParseQuery.getQuery(Post.class);
     // include data referred by user key
@@ -154,7 +152,6 @@ public class FeedFragment extends Fragment implements PostsAdapter.ListItemClick
           public void done(List<Post> posts, ParseException e) {
             // check for errors
             if (e != null) {
-              Log.e(TAG, "Issue with getting refreshed posts", e);
               return;
             }
 
@@ -176,7 +173,7 @@ public class FeedFragment extends Fragment implements PostsAdapter.ListItemClick
     // limit query to latest 20 items
     query.setLimit(QUERY_AMOUNT_LIMIT);
     // order posts by creation date (newest first)
-    query.addDescendingOrder("createdAt");
+    query.addDescendingOrder(Post.KEY_CREATED_AT);
     // start an asynchronous call for posts
     query.findInBackground(
         new FindCallback<Post>() {
@@ -184,7 +181,6 @@ public class FeedFragment extends Fragment implements PostsAdapter.ListItemClick
           public void done(List<Post> posts, ParseException e) {
             // check for errors
             if (e != null) {
-              Log.e(TAG, "Issue with getting posts", e);
               return;
             }
             pb.setVisibility(View.INVISIBLE);
@@ -198,8 +194,6 @@ public class FeedFragment extends Fragment implements PostsAdapter.ListItemClick
 
   @Override
   public void onUserProfileTo(int position) {
-    Toast.makeText(getContext(), "Going to user clicked's profile page!", Toast.LENGTH_SHORT)
-        .show();
     Intent intent = new Intent(getContext(), MainActivity.class);
     intent.putExtra("openProfileFragmentOnUser", true);
     intent.putExtra("openProfileFragmentOnUser ParseUser", allPosts.get(position).getUser());

@@ -76,14 +76,12 @@ public class ComposeFragment extends Fragment {
     btnCaptureImage = view.findViewById(R.id.btnCaptureImage);
     ivPostImage = view.findViewById(R.id.ivPostImage);
     btnSubmit = view.findViewById(R.id.btnSubmit);
-
     pb = view.findViewById(R.id.pbLoading);
 
     btnLogout.setOnClickListener(
         new View.OnClickListener() {
           @Override
           public void onClick(View v) {
-            Log.i(TAG, "onClick logout button");
             logoutUser();
             goLoginActivity();
           }
@@ -162,7 +160,7 @@ public class ComposeFragment extends Fragment {
     File mediaStorageDir =
         new File(getContext().getExternalFilesDir(Environment.DIRECTORY_PICTURES), TAG);
 
-    // CReate the storage directory if it does not exist
+    // Create the storage directory if it does not exist
     if (!mediaStorageDir.exists() && !mediaStorageDir.mkdirs()) {
       Log.d(TAG, "failed to create directory");
     }
@@ -195,7 +193,6 @@ public class ComposeFragment extends Fragment {
   private void logoutUser() {
     ParseUser.logOut();
     ParseUser currentUser = ParseUser.getCurrentUser(); // this will now be null
-    Log.i(TAG, "Logout successful!");
   }
 
   private void goLoginActivity() {

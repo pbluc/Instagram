@@ -91,7 +91,8 @@ public class CommentsAdapter extends RecyclerView.Adapter<CommentsAdapter.ViewHo
         Glide.with(context).load(profileImage.getUrl()).into(ivProfileImage);
       }
 
-      tvComment.setText(comment.getUserCommentor().fetchIfNeeded().getUsername() + " " + comment.getComment());
+      tvComment.setText(
+          comment.getUserCommentor().fetchIfNeeded().getUsername() + " " + comment.getComment());
 
       Date createdAt = comment.getCreatedAt();
       String timeAgo = Post.calculateTimeAgo(createdAt);

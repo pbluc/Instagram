@@ -107,9 +107,9 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.ViewHolder> 
       tvCreatedAt = itemView.findViewById(R.id.tvCreatedAt);
       ivImage = itemView.findViewById(R.id.ivImage);
       ivProfileImage = itemView.findViewById(R.id.ivProfileImage);
+      ivSaveIcon = itemView.findViewById(R.id.ivSaveIcon);
       ivOpenComments = itemView.findViewById(R.id.ivOpenComments);
       cardView = itemView.findViewById(R.id.cardView);
-      ivSaveIcon = itemView.findViewById(R.id.ivSaveIcon);
 
       tvUsername.setOnClickListener(this);
       cardView.setOnClickListener(this);

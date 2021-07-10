@@ -57,7 +57,6 @@ public class CommentsActivity extends AppCompatActivity {
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     setContentView(R.layout.activity_comments);
-    Log.i(TAG, "Started activity");
 
     ivReturnHome = findViewById(R.id.ivReturnHome);
     swipeContainer = findViewById(R.id.swipeContainer);
@@ -65,7 +64,6 @@ public class CommentsActivity extends AppCompatActivity {
     etAddComment = findViewById(R.id.etAddComment);
     tvPostComment = findViewById(R.id.tvPostComment);
     ivProfileImage = findViewById(R.id.ivProfileImage);
-
     pb = findViewById(R.id.pbLoading);
 
     parseUser = ParseUser.getCurrentUser();
@@ -73,6 +71,16 @@ public class CommentsActivity extends AppCompatActivity {
     relatedPost = getIntent().getParcelableExtra("relatedPostToComments");
 
     Glide.with(this).load(parseUserProfileImg.getUrl()).into(ivProfileImage);
+
+    // initialize the array that will hold posts and create a PostsAdapter
+    allComments = new ArrayList<>();
+    adapter = new CommentsAdapter(this, allComments);
+
+    // set adapter on the recycler view
+    rvComments.setAdapter(adapter);
+    // set the layout manager on the recycler view
+    LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this);
+    rvComments.setLayoutManager(linearLayoutManager);
 
     ivReturnHome.setOnClickListener(
         new View.OnClickListener() {
@@ -103,19 +111,10 @@ public class CommentsActivity extends AppCompatActivity {
         new SwipeRefreshLayout.OnRefreshListener() {
           @Override
           public void onRefresh() {
-            fetchTimelineAsync(0);
+            fetchTimelineAsync();
           }
         });
 
-    // initialize the array that will hold posts and create a PostsAdapter
-    allComments = new ArrayList<>();
-    adapter = new CommentsAdapter(this, allComments);
-
-    // set adapter on the recycler view
-    rvComments.setAdapter(adapter);
-    // set the layout manager on the recycler view
-    LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this);
-    rvComments.setLayoutManager(linearLayoutManager);
     // Retain an instance so that we can call `resetState()` for fresh searches
     scrollListener =
         new EndlessRecyclerViewScrollListener(linearLayoutManager) {
@@ -124,7 +123,7 @@ public class CommentsActivity extends AppCompatActivity {
             // Triggered only when new data needs to be appended to the list
             // Add whatever code is needed to append new items to bottom of the list
             pb.setVisibility(View.VISIBLE);
-            loadNextDataFromParse(page);
+            loadNextDataFromParse();
           }
         };
     // Adds the scroll listener to RecyclerView
@@ -135,7 +134,11 @@ public class CommentsActivity extends AppCompatActivity {
     queryComments();
   }
 
-  private void saveComment(ParseUser userCommentor, ParseUser userRelatedPost, ParseFile parseUserProfileImg, String comment) {
+  private void saveComment(
+      ParseUser userCommentor,
+      ParseUser userRelatedPost,
+      ParseFile parseUserProfileImg,
+      String comment) {
     Comment newComment = new Comment();
     newComment.setComment(comment);
     newComment.setProfileImage(parseUserProfileImg);
@@ -146,12 +149,10 @@ public class CommentsActivity extends AppCompatActivity {
           @Override
           public void done(ParseException e) {
             if (e != null) {
-              Log.e(TAG, "Error while saving new comment", e);
               Toast.makeText(CommentsActivity.this, "Error while saving!", Toast.LENGTH_LONG)
                   .show();
               return;
             }
-            Log.i(TAG, "Comment save was successful!!: " + newComment);
             pb.setVisibility(ProgressBar.INVISIBLE);
             etAddComment.setText("");
 
@@ -174,16 +175,12 @@ public class CommentsActivity extends AppCompatActivity {
                   @Override
                   public void done(ParseException e) {
                     // Save successful
-                      pb.setVisibility(View.INVISIBLE);
+                    pb.setVisibility(View.INVISIBLE);
                     if (e == null) {
-                      Log.i(TAG, "Save successful!: " + relatedPost.getCommentsArray());
-
-                        allComments.add(newComment);
-                        Log.i(TAG, "allComments after adding new comment: " + allComments);
-                        adapter.notifyItemInserted(allComments.size() - 1);
+                      allComments.add(newComment);
+                      adapter.notifyItemInserted(allComments.size() - 1);
                     } else {
                       // Something went wrong while saving
-                      Log.e(TAG, "Save unsuccessful: " + e);
                       return;
                     }
                   }
@@ -193,123 +190,125 @@ public class CommentsActivity extends AppCompatActivity {
   }
 
   private void queryComments() {
-      // Specify what type of date we want to query - Comment.class
-      ParseQuery<Comment> query = ParseQuery.getQuery(Comment.class);
-      // limit query to latest 20 items
-      query.setLimit(QUERY_AMOUNT_LIMIT);
-      // order comments by creation date (oldest first)
-      query.addAscendingOrder(Comment.KEY_CREATED_AT);
-      // start an asynchronous call for comments
-      query.findInBackground(new FindCallback<Comment>() {
+    // Specify what type of date we want to query - Comment.class
+    ParseQuery<Comment> query = ParseQuery.getQuery(Comment.class);
+    // limit query to latest 20 items
+    query.setLimit(QUERY_AMOUNT_LIMIT);
+    // order comments by creation date (oldest first)
+    query.addAscendingOrder(Comment.KEY_CREATED_AT);
+    // start an asynchronous call for comments
+    query.findInBackground(
+        new FindCallback<Comment>() {
           @Override
           public void done(List<Comment> comments, ParseException e) {
-              pb.setVisibility(ProgressBar.INVISIBLE);
-              if(e == null) {
-                  // Query was successful
-                  Log.i(TAG, "Successfully queried comments");
+            pb.setVisibility(ProgressBar.INVISIBLE);
+            if (e == null) {
+              // Query was successful
 
-                  List<Comment> relatedPostComments = new ArrayList<>();
-                  for(Comment c : comments) {
-                      if(c.getUserRelatedPost().getObjectId().equals(relatedPost.getUser().getObjectId())) {
-                          relatedPostComments.add(c);
-                      }
-                  }
-
-                  if(!relatedPostComments.isEmpty()) {
-                      // Save received posts to list and notify adapter of new data
-                      allComments.clear();
-                      allComments.addAll(relatedPostComments);
-                      adapter.notifyDataSetChanged();
-                  }
-
-              } else {
-                  // Query was not successful
-                  Log.e(TAG, "Issue with getting comments", e);
-                  return;
+              List<Comment> relatedPostComments = new ArrayList<>();
+              for (Comment c : comments) {
+                if (c.getUserRelatedPost()
+                    .getObjectId()
+                    .equals(relatedPost.getUser().getObjectId())) {
+                  relatedPostComments.add(c);
+                }
               }
+
+              if (!relatedPostComments.isEmpty()) {
+                // Save received posts to list and notify adapter of new data
+                allComments.clear();
+                allComments.addAll(relatedPostComments);
+                adapter.notifyDataSetChanged();
+              }
+
+            } else {
+              // Query was not successful
+              return;
+            }
           }
-      });
+        });
   }
 
-  private void loadNextDataFromParse(int page) {
-      int allCommentsSize = allComments.size();
-      if(allCommentsSize < 1) {
-          return;
-      }
+  private void loadNextDataFromParse() {
+    int allCommentsSize = allComments.size();
+    if (allCommentsSize < 1) {
+      return;
+    }
 
-      // Specify what type of date we want to query - Comment.class
-      ParseQuery<Comment> query = ParseQuery.getQuery(Comment.class);
-      // limit query to latest 20 items
-      query.setLimit(QUERY_AMOUNT_LIMIT);
-      // query searches for posts older than posts currently populating
-      query.whereLessThan(Comment.KEY_CREATED_AT, allComments.get(0).getCreatedAt());
-      // order comments by creation date (oldest first)
-      query.addAscendingOrder(Comment.KEY_CREATED_AT);
-      // start an asynchronous call for comments
-      query.findInBackground(new FindCallback<Comment>() {
+    // Specify what type of date we want to query - Comment.class
+    ParseQuery<Comment> query = ParseQuery.getQuery(Comment.class);
+    // limit query to latest 20 items
+    query.setLimit(QUERY_AMOUNT_LIMIT);
+    // query searches for posts older than posts currently populating
+    query.whereLessThan(Comment.KEY_CREATED_AT, allComments.get(0).getCreatedAt());
+    // order comments by creation date (oldest first)
+    query.addAscendingOrder(Comment.KEY_CREATED_AT);
+    // start an asynchronous call for comments
+    query.findInBackground(
+        new FindCallback<Comment>() {
           @Override
           public void done(List<Comment> comments, ParseException e) {
-              pb.setVisibility(ProgressBar.INVISIBLE);
-              if(e == null) {
-                  // Query was successful
-                  Log.i(TAG, "Successfully loaded new comments");
+            pb.setVisibility(ProgressBar.INVISIBLE);
+            if (e == null) {
+              // Query was successful
 
-                  List<Comment> relatedPostComments = new ArrayList<>();
-                  for(Comment c : comments) {
-                      if(c.getUserRelatedPost().getObjectId().equals(relatedPost.getUser().getObjectId()) && !allComments.contains(c)) {
-                          relatedPostComments.add(c);
-                      }
-                  }
-
-                  if(!relatedPostComments.isEmpty()) {
-                      // Save received posts to list and notify adapter of new data
-                      allComments.addAll(relatedPostComments);
-                     adapter.notifyItemRangeInserted(allCommentsSize, relatedPostComments.size());
-                  }
-
-              } else {
-                  // Query was not successful
-                  Log.e(TAG, "Issue with getting comments", e);
-                  return;
+              List<Comment> relatedPostComments = new ArrayList<>();
+              for (Comment c : comments) {
+                if (c.getUserRelatedPost().getObjectId().equals(relatedPost.getUser().getObjectId())
+                    && !allComments.contains(c)) {
+                  relatedPostComments.add(c);
+                }
               }
+
+              if (!relatedPostComments.isEmpty()) {
+                // Save received posts to list and notify adapter of new data
+                allComments.addAll(relatedPostComments);
+                adapter.notifyItemRangeInserted(allCommentsSize, relatedPostComments.size());
+              }
+
+            } else {
+              // Query was not successful
+              return;
+            }
           }
-      });
+        });
   }
 
-  private void fetchTimelineAsync(int i) {
-      // Specify what type of date we want to query - Comment.class
-      ParseQuery<Comment> query = ParseQuery.getQuery(Comment.class);
-      // limit query to latest 20 items
-      query.setLimit(QUERY_AMOUNT_LIMIT);
-      // order comments by creation date (oldest first)
-      query.addAscendingOrder(Comment.KEY_CREATED_AT);
-      // start an asynchronous call for comments
-      query.findInBackground(new FindCallback<Comment>() {
+  private void fetchTimelineAsync() {
+    // Specify what type of date we want to query - Comment.class
+    ParseQuery<Comment> query = ParseQuery.getQuery(Comment.class);
+    // limit query to latest 20 items
+    query.setLimit(QUERY_AMOUNT_LIMIT);
+    // order comments by creation date (oldest first)
+    query.addAscendingOrder(Comment.KEY_CREATED_AT);
+    // start an asynchronous call for comments
+    query.findInBackground(
+        new FindCallback<Comment>() {
           @Override
           public void done(List<Comment> comments, ParseException e) {
-              swipeContainer.setRefreshing(false);
-              if(e == null) {
-                  // Query was successful
-                  Log.i(TAG, "Successfully queried comments");
+            swipeContainer.setRefreshing(false);
+            if (e == null) {
+              // Query was successful
 
-                  List<Comment> relatedPostComments = new ArrayList<>();
-                  for(Comment c : comments) {
-                      if(c.getUserRelatedPost().getObjectId().equals(relatedPost.getUser().getObjectId())) {
-                          relatedPostComments.add(c);
-                      }
-                  }
-
-                  if(!relatedPostComments.isEmpty()) {
-                      // Save received posts to list and notify adapter of new data
-                      adapter.clear();
-                      adapter.addAll(relatedPostComments);
-                  }
-              } else {
-                  // Query was not successful
-                  Log.e(TAG, "Issue with getting comments", e);
-                  return;
+              List<Comment> relatedPostComments = new ArrayList<>();
+              for (Comment c : comments) {
+                if (c.getUserRelatedPost()
+                    .getObjectId()
+                    .equals(relatedPost.getUser().getObjectId())) {
+                  relatedPostComments.add(c);
+                }
               }
+
+              if (!relatedPostComments.isEmpty()) {
+                // Save received posts to list and notify adapter of new data
+                adapter.clear();
+                adapter.addAll(relatedPostComments);
+              }
+            } else {
+              // Query was not successful
+              return;
+            }
           }
-      });
+        });
   }
 }
