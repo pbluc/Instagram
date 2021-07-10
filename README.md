@@ -2,7 +2,7 @@
 
 **InstagramClone** is a photo sharing app using Parse as its backend.
 
-Time spent: **20.5** hours spent in total
+Time spent: **31.5** hours spent in total
 
 ## User Stories
 
@@ -37,20 +37,16 @@ The following **stretch** features are implemented:
 - [x] User can comment on a post and see all comments for each post in the post details screen.
 - [ ] User can like a post and see number of likes for each post in the post details screen.
 
-The following **additional** features are implemented:
-
-- [ ] List anything else that you can get done to improve the app functionality!
-
 Please list two areas of the assignment you'd like to **discuss further with your peers** during the next class (examples include better ways to implement something, how to extend your app in certain ways, etc):
 
-1.
-2.
+1. Finding a better way to query for ParseObjects
+2. Setting up an improved way of sending information between previous activity or fragment 
 
 ## Video Walkthrough
 
 Here's a walkthrough of implemented user stories:
 
-<img src='http://i.imgur.com/link/to/your/gif/file.gif' title='Video Walkthrough' width='' alt='Video Walkthrough' />
+<img src='https://github.com/pbluc/Instagram/blob/adb1933387ae9e40190daac73ab48e213537ec2d/screenshots/InstagramClone_GIF_Video_Walkthrough.gif' width='' alt='Video Walkthrough' />
 
 GIF created with [Kap](https://getkap.co/).
 
@@ -63,7 +59,7 @@ List an 3rd party libraries, icons, graphics, or other assets you used in your a
 
 ## Notes
 
-Describe any challenges encountered while building the app.
+The biggest challenge that I'd come across had to do with making sense of queries and relationships between objects in Parse to the point where I could actively apply it to my own custom Parse classes. 
 
 ## License
 
