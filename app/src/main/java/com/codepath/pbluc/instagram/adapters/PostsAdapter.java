@@ -97,6 +97,7 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.ViewHolder> 
     private ImageView ivImage;
     private ImageView ivProfileImage;
     private ImageView ivOpenComments;
+    private ImageView ivSaveIcon;
     private CardView cardView;
 
     public ViewHolder(@NonNull View itemView) {
@@ -108,6 +109,7 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.ViewHolder> 
       ivProfileImage = itemView.findViewById(R.id.ivProfileImage);
       ivOpenComments = itemView.findViewById(R.id.ivOpenComments);
       cardView = itemView.findViewById(R.id.cardView);
+      ivSaveIcon = itemView.findViewById(R.id.ivSaveIcon);
 
       tvUsername.setOnClickListener(this);
       cardView.setOnClickListener(this);

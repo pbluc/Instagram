@@ -8,6 +8,14 @@
     android:orientation="vertical"
     tools:context=".LoginActivity">
 
+    <ImageView
+        android:layout_width="219dp"
+        android:layout_height="106dp"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginTop="100dp"
+        android:layout_marginBottom="20dp"
+        android:src="@drawable/nav_logo_whiteout" />
+
     <EditText
         android:id="@+id/etUsername"
         android:layout_width="match_parent"
@@ -24,23 +32,30 @@
         android:inputType="textPassword"/>
 
     <Button
+        android:layout_marginTop="20dp"
         android:id="@+id/btnLogin"
+        android:padding="15dp"
+        android:backgroundTint="@color/blue_200"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Login"/>
+        android:text="Log In"
+        android:textColor="@color/white"/>
 
     <Button
+        android:padding="15dp"
         android:id="@+id/btnSignUp"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Sign Up"/>
+        android:backgroundTint="@color/green_200"
+        android:text="Sign Up"
+        android:textColor="@color/white"/>
 
     <ProgressBar
         android:id="@+id/pbLoading"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
-        android:layout_marginTop="200dp"
+        android:layout_marginTop="90dp"
         android:visibility="invisible"/>
 
 </LinearLayout>

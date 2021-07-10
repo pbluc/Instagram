@@ -97,13 +97,14 @@
             android:src="@drawable/ufi_new_direct"/>
 
         <ImageView
+            android:id="@+id/ivSaveIcon"
             android:layout_marginLeft="270dp"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:scaleX="1.25"
             android:scaleY="1.25"
             android:layout_marginTop="2.5dp"
-            android:src="@drawable/ufi_save"/>
+            android:src="@drawable/ufi_save_icon"/>
 
     </LinearLayout>
 
