@@ -15,6 +15,7 @@ import com.bumptech.glide.Glide;
 import com.codepath.pbluc.instagram.R;
 import com.codepath.pbluc.instagram.models.Comment;
 import com.codepath.pbluc.instagram.models.Post;
+import com.parse.ParseException;
 import com.parse.ParseFile;
 
 import java.util.Date;
@@ -42,7 +43,11 @@ public class CommentsAdapter extends RecyclerView.Adapter<CommentsAdapter.ViewHo
   @Override
   public void onBindViewHolder(@NonNull CommentsAdapter.ViewHolder holder, int position) {
     Comment comment = comments.get(position);
-    holder.bind(comment);
+    try {
+      holder.bind(comment);
+    } catch (ParseException e) {
+      e.printStackTrace();
+    }
   }
 
   // Clean all elements of the recycler
@@ -80,13 +85,13 @@ public class CommentsAdapter extends RecyclerView.Adapter<CommentsAdapter.ViewHo
       tvLikes = view.findViewById(R.id.tvLikes);
     }
 
-    public void bind(Comment comment) {
+    public void bind(Comment comment) throws ParseException {
       ParseFile profileImage = comment.getProfileImage();
       if (profileImage != null) {
         Glide.with(context).load(profileImage.getUrl()).into(ivProfileImage);
       }
 
-      tvComment.setText(comment.getUser().getUsername() + " " + comment.getComment());
+      tvComment.setText(comment.getUserCommentor().fetchIfNeeded().getUsername() + " " + comment.getComment());
 
       Date createdAt = comment.getCreatedAt();
       String timeAgo = Post.calculateTimeAgo(createdAt);

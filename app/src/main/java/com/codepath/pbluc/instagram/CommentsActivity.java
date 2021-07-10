@@ -57,6 +57,7 @@ public class CommentsActivity extends AppCompatActivity {
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     setContentView(R.layout.activity_comments);
+    Log.i(TAG, "Started activity");
 
     ivReturnHome = findViewById(R.id.ivReturnHome);
     swipeContainer = findViewById(R.id.swipeContainer);
@@ -88,7 +89,7 @@ public class CommentsActivity extends AppCompatActivity {
             String comment = etAddComment.getText().toString().trim();
             if (!comment.equals("")) {
               pb.setVisibility(View.VISIBLE);
-              saveComment(parseUser, parseUserProfileImg, comment);
+              saveComment(parseUser, relatedPost.getUser(), parseUserProfileImg, comment);
             } else {
               Toast.makeText(CommentsActivity.this, "Did not enter a comment!", Toast.LENGTH_SHORT)
                   .show();
@@ -134,146 +135,181 @@ public class CommentsActivity extends AppCompatActivity {
     queryComments();
   }
 
-  private void saveComment(ParseUser parseUser, ParseFile parseUserProfileImg, String comment) {
+  private void saveComment(ParseUser userCommentor, ParseUser userRelatedPost, ParseFile parseUserProfileImg, String comment) {
     Comment newComment = new Comment();
     newComment.setComment(comment);
     newComment.setProfileImage(parseUserProfileImg);
-    newComment.setUser(parseUser);
+    newComment.setUserCommentor(userCommentor);
+    newComment.setUserRelatedPost(userRelatedPost);
     newComment.saveInBackground(
         new SaveCallback() {
           @Override
           public void done(ParseException e) {
             if (e != null) {
-              Log.e(TAG, "Error while saving", e);
+              Log.e(TAG, "Error while saving new comment", e);
               Toast.makeText(CommentsActivity.this, "Error while saving!", Toast.LENGTH_LONG)
                   .show();
               return;
             }
-            Log.i(TAG, "Comment save was successful!!");
+            Log.i(TAG, "Comment save was successful!!: " + newComment);
             pb.setVisibility(ProgressBar.INVISIBLE);
             etAddComment.setText("");
 
-            // TODO: Add newly saved comment to Post object in Parse
-              if(relatedPost.getCommentsArray() != null) {
-                  // Post has comments
+            if (relatedPost.getCommentsArray() != null) {
+              // Post has comments
+              List<Comment> existingComments = relatedPost.getCommentsArray();
+              existingComments.add(newComment);
 
+              relatedPost.setCommentArray(existingComments);
+            } else {
+              // Post does not have comments
+              List<Comment> newCommentArray = new ArrayList<>();
+              newCommentArray.add(newComment);
 
-              } else {
-                  // Post does not have comments
-                  ArrayList<Comment> list = new ArrayList<>();
-                  list.add(newComment);
+              relatedPost.setCommentArray(newCommentArray);
+            }
 
-                  relatedPost.put(Post.KEY_COMMENTS, list);
+            relatedPost.saveInBackground(
+                new SaveCallback() {
+                  @Override
+                  public void done(ParseException e) {
+                    // Save successful
+                      pb.setVisibility(View.INVISIBLE);
+                    if (e == null) {
+                      Log.i(TAG, "Save successful!: " + relatedPost.getCommentsArray());
 
-                  relatedPost.saveInBackground(new SaveCallback() {
-                      @Override
-                      public void done(ParseException e) {
-                          // Save successful
-                          if(e == null) {
-                              Log.i(TAG, "Save successful!");
-                          } else {
-                             //Something went wrong while saving
-                              Log.e(TAG, "Save unsuccessful: " + e);
-                          }
-                      }
-                  });
-
-              }
-
-            allComments.add(newComment);
-            adapter.notifyItemInserted(allComments.size() - 1);
+                        allComments.add(newComment);
+                        Log.i(TAG, "allComments after adding new comment: " + allComments);
+                        adapter.notifyItemInserted(allComments.size() - 1);
+                    } else {
+                      // Something went wrong while saving
+                      Log.e(TAG, "Save unsuccessful: " + e);
+                      return;
+                    }
+                  }
+                });
           }
         });
   }
 
   private void queryComments() {
-    // specify what type of data we want to query - Comment.class
-    ParseQuery<Comment> query = ParseQuery.getQuery(Comment.class);
-    // include data referred by user key
-    query.include(Comment.KEY_USER);
-    // limit query to latest 20 items
-    query.setLimit(QUERY_AMOUNT_LIMIT);
-    // order comments by creation date (newest first)
-    query.addDescendingOrder("createdAt");
-    // start an asynchronous call for posts
-    query.findInBackground(
-        new FindCallback<Comment>() {
+      // Specify what type of date we want to query - Comment.class
+      ParseQuery<Comment> query = ParseQuery.getQuery(Comment.class);
+      // limit query to latest 20 items
+      query.setLimit(QUERY_AMOUNT_LIMIT);
+      // order comments by creation date (oldest first)
+      query.addAscendingOrder(Comment.KEY_CREATED_AT);
+      // start an asynchronous call for comments
+      query.findInBackground(new FindCallback<Comment>() {
           @Override
           public void done(List<Comment> comments, ParseException e) {
-            // check for errors
-            if (e != null) {
-              Log.e(TAG, "Issue with getting comments", e);
-              return;
-            }
-            pb.setVisibility(View.INVISIBLE);
+              pb.setVisibility(ProgressBar.INVISIBLE);
+              if(e == null) {
+                  // Query was successful
+                  Log.i(TAG, "Successfully queried comments");
 
-            // save received posts to list and notify adapter of new data
-            allComments.addAll(comments);
-            adapter.notifyDataSetChanged();
+                  List<Comment> relatedPostComments = new ArrayList<>();
+                  for(Comment c : comments) {
+                      if(c.getUserRelatedPost().getObjectId().equals(relatedPost.getUser().getObjectId())) {
+                          relatedPostComments.add(c);
+                      }
+                  }
+
+                  if(!relatedPostComments.isEmpty()) {
+                      // Save received posts to list and notify adapter of new data
+                      allComments.clear();
+                      allComments.addAll(relatedPostComments);
+                      adapter.notifyDataSetChanged();
+                  }
+
+              } else {
+                  // Query was not successful
+                  Log.e(TAG, "Issue with getting comments", e);
+                  return;
+              }
           }
-        });
+      });
   }
 
   private void loadNextDataFromParse(int page) {
-    int allCommentsSize = allComments.size();
-    // specify what type of data we want to query - Comment.class
-    ParseQuery<Comment> query = ParseQuery.getQuery(Comment.class);
-    // include data referred by user key
-    query.include(Comment.KEY_USER);
-    // limit query to latest 20 items
-    query.setLimit(QUERY_AMOUNT_LIMIT);
-    // query searches for posts older than comments currently populating and orders by creation date
-    // (newest first)
-    query
-        .whereLessThan("createdAt", allComments.get(allComments.size() - 1).getCreatedAt())
-        .addDescendingOrder("createdAt");
-    // start an asynchronous call for posts
-    query.findInBackground(
-        new FindCallback<Comment>() {
+      int allCommentsSize = allComments.size();
+      if(allCommentsSize < 1) {
+          return;
+      }
+
+      // Specify what type of date we want to query - Comment.class
+      ParseQuery<Comment> query = ParseQuery.getQuery(Comment.class);
+      // limit query to latest 20 items
+      query.setLimit(QUERY_AMOUNT_LIMIT);
+      // query searches for posts older than posts currently populating
+      query.whereLessThan(Comment.KEY_CREATED_AT, allComments.get(0).getCreatedAt());
+      // order comments by creation date (oldest first)
+      query.addAscendingOrder(Comment.KEY_CREATED_AT);
+      // start an asynchronous call for comments
+      query.findInBackground(new FindCallback<Comment>() {
           @Override
           public void done(List<Comment> comments, ParseException e) {
-            Log.i(TAG, "Loaded comments: " + comments.toString());
-            // check for errors
-            if (e != null) {
-              Log.e(TAG, "Issue with getting more loaded comments", e);
-              return;
-            }
-            pb.setVisibility(View.INVISIBLE);
+              pb.setVisibility(ProgressBar.INVISIBLE);
+              if(e == null) {
+                  // Query was successful
+                  Log.i(TAG, "Successfully loaded new comments");
 
-            // save received posts to list and notify adapter of new data
-            allComments.addAll(comments);
-            adapter.notifyItemRangeInserted(allCommentsSize, comments.size());
+                  List<Comment> relatedPostComments = new ArrayList<>();
+                  for(Comment c : comments) {
+                      if(c.getUserRelatedPost().getObjectId().equals(relatedPost.getUser().getObjectId()) && !allComments.contains(c)) {
+                          relatedPostComments.add(c);
+                      }
+                  }
+
+                  if(!relatedPostComments.isEmpty()) {
+                      // Save received posts to list and notify adapter of new data
+                      allComments.addAll(relatedPostComments);
+                     adapter.notifyItemRangeInserted(allCommentsSize, relatedPostComments.size());
+                  }
+
+              } else {
+                  // Query was not successful
+                  Log.e(TAG, "Issue with getting comments", e);
+                  return;
+              }
           }
-        });
+      });
   }
 
   private void fetchTimelineAsync(int i) {
-    // specify what type of data we want to query - Comment.class
-    ParseQuery<Comment> query = ParseQuery.getQuery(Comment.class);
-    // include data referred by user key
-    query.include(Comment.KEY_USER);
-    // limit query to latest 20 items
-    query.setLimit(QUERY_AMOUNT_LIMIT);
-    // order comments by creation date (newest first)
-    query.addDescendingOrder("createdAt");
-    // start an asynchronous call for posts
-    query.findInBackground(
-        new FindCallback<Comment>() {
+      // Specify what type of date we want to query - Comment.class
+      ParseQuery<Comment> query = ParseQuery.getQuery(Comment.class);
+      // limit query to latest 20 items
+      query.setLimit(QUERY_AMOUNT_LIMIT);
+      // order comments by creation date (oldest first)
+      query.addAscendingOrder(Comment.KEY_CREATED_AT);
+      // start an asynchronous call for comments
+      query.findInBackground(new FindCallback<Comment>() {
           @Override
           public void done(List<Comment> comments, ParseException e) {
-            // check for errors
-            if (e != null) {
-              Log.e(TAG, "Issue with getting refreshed comments", e);
-              return;
-            }
+              swipeContainer.setRefreshing(false);
+              if(e == null) {
+                  // Query was successful
+                  Log.i(TAG, "Successfully queried comments");
 
-            // Clear out old items before appending in the new ones
-            adapter.clear();
-            // The data has come back, add new items to adapter
-            adapter.addAll(comments);
-            // Call setRefreshing(false) to signal refresh has finished
-            swipeContainer.setRefreshing(false);
+                  List<Comment> relatedPostComments = new ArrayList<>();
+                  for(Comment c : comments) {
+                      if(c.getUserRelatedPost().getObjectId().equals(relatedPost.getUser().getObjectId())) {
+                          relatedPostComments.add(c);
+                      }
+                  }
+
+                  if(!relatedPostComments.isEmpty()) {
+                      // Save received posts to list and notify adapter of new data
+                      adapter.clear();
+                      adapter.addAll(relatedPostComments);
+                  }
+              } else {
+                  // Query was not successful
+                  Log.e(TAG, "Issue with getting comments", e);
+                  return;
+              }
           }
-        });
+      });
   }
 }
